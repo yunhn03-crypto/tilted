@@ -49,6 +49,13 @@
       font-size: 14px;
       font-weight: 700;
     }
+    .sub-label {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #475569;
+    }
     input, select, textarea, button {
       font: inherit;
     }
@@ -78,6 +85,15 @@
       cursor: pointer;
     }
     .btn:hover { opacity: 0.92; }
+    .btn-inline {
+      border: 1px solid #d1d5db;
+      border-radius: 12px;
+      padding: 10px 12px;
+      background: #fff;
+      cursor: pointer;
+      font-weight: 700;
+    }
+    .btn-inline:hover { background: #f8fafc; }
     .guide {
       margin-top: 12px;
       padding: 12px 14px;
@@ -237,20 +253,72 @@
       font-size: 13px;
       color: #64748b;
     }
-    .tag-group { margin-bottom: 22px; }
-    .tag-heading {
+    .field-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .field-row > * { flex: 1; }
+    .tag-select-box {
+      border: 1px solid #d1d5db;
+      border-radius: 14px;
+      padding: 10px;
+      background: #fff;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      min-height: 48px;
+    }
+    .tag-check {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border: 1px solid #d1d5db;
+      border-radius: 999px;
+      background: #f8fafc;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    .tag-check input { width: auto; margin: 0; }
+    .tag-manage-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .tag-manage-item {
       display: flex;
       align-items: center;
-      gap: 8px;
-      margin-bottom: 10px;
-      font-size: 18px;
-      font-weight: 700;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 10px 12px;
+      border: 1px solid #e5e7eb;
+      border-radius: 14px;
+      background: #fff;
+    }
+    .tag-manage-actions {
+      display: flex;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+    .search-box {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .search-result-count {
+      font-size: 13px;
+      color: #64748b;
+      margin-bottom: 12px;
     }
 
     @media (max-width: 1100px) {
       .layout,
       .grid-2,
-      .grid-2-equal {
+      .grid-2-equal,
+      .search-box {
         grid-template-columns: 1fr;
       }
     }
@@ -261,15 +329,15 @@
       .card-body { padding: 14px 16px 16px; }
       .tabs { grid-template-columns: repeat(2, 1fr); }
       .task-row { gap: 10px; }
-      .task-actions {
-        flex-direction: column;
-      }
+      .task-actions { flex-direction: column; }
       .toolbar {
         flex-direction: column;
         align-items: stretch;
       }
-      .toolbar-control {
-        width: 100%;
+      .toolbar-control { width: 100%; }
+      .field-row {
+        flex-direction: column;
+        align-items: stretch;
       }
     }
   </style>
@@ -308,20 +376,34 @@
 
           <div class="section">
             <label class="label">할일 제목</label>
-            <input type="text" id="taskTitle" placeholder="예: 거래처 견적 발송 #영업 #중요" />
+            <input type="text" id="taskTitle" placeholder="예: 거래처 견적 발송" />
           </div>
 
           <div class="section">
             <label class="label">메모</label>
-            <textarea id="taskMemo" placeholder="상세 내용, 체크 포인트, 태그(#) 입력 가능"></textarea>
+            <textarea id="taskMemo" placeholder="상세 내용, 체크 포인트"></textarea>
+          </div>
+
+          <div class="section">
+            <label class="label">태그 선택</label>
+            <div class="tag-select-box" id="taskTagSelectBox"></div>
           </div>
 
           <button class="btn" id="addTaskBtn">추가</button>
 
           <div class="guide">
-            미완료 업무는 다음 날짜·주·월로 자동 이월됩니다.<br>
-            이월된 업무는 다음 구간에서 최상단에 먼저 표시됩니다.<br>
-            제목이나 메모에 #키워드를 넣으면 자동 분류됩니다.
+            태그는 아래의 태그 관리에서 별도로 등록합니다.<br>
+            일정 등록 시에는 등록된 태그를 선택해서 붙일 수 있습니다.<br>
+            미완료 업무는 다음 날짜·주·월로 자동 이월됩니다.
+          </div>
+
+          <div class="section" style="margin-top:16px;">
+            <label class="label">태그 관리</label>
+            <div class="field-row">
+              <input type="text" id="newTagName" placeholder="예: 영업" />
+              <button class="btn-inline" id="addTagBtn" type="button">태그 추가</button>
+            </div>
+            <div class="tag-manage-list" id="tagManageList"></div>
           </div>
         </div>
       </div>
@@ -331,7 +413,7 @@
           <button class="tab-btn active" data-tab="daily">당일</button>
           <button class="tab-btn" data-tab="weekly">주간</button>
           <button class="tab-btn" data-tab="monthly">월간</button>
-          <button class="tab-btn" data-tab="tags">#태그</button>
+          <button class="tab-btn" data-tab="search">검색</button>
         </div>
 
         <div id="content"></div>
@@ -340,7 +422,7 @@
   </div>
 
   <script>
-    const STORAGE_KEY = 'todo-manager-pc-mobile-v1';
+    const STORAGE_KEY = 'todo-manager-pc-mobile-v2';
 
     function pad(n) {
       return String(n).padStart(2, '0');
@@ -388,19 +470,10 @@
       return monthKey(d);
     }
 
-    function formatDateLabel(key) {
-      return key;
-    }
-
     function formatWeekLabel(key) {
       const start = new Date(key);
       const end = addDays(start, 6);
       return `${todayKey(start)} ~ ${todayKey(end)}`;
-    }
-
-    function extractTags(text) {
-      const matches = text.match(/#[^\s#]+/g) || [];
-      return [...new Set(matches.map(v => v.toLowerCase()))];
     }
 
     function inWeek(dateKey, weekStartKey) {
@@ -422,13 +495,29 @@
           week: weekKey(),
           month: monthKey()
         },
+        search: {
+          text: '',
+          tagId: 'all'
+        },
+        tags: [
+          { id: uid(), name: '중요' },
+          { id: uid(), name: '업무' }
+        ],
         tasks: []
       };
     }
 
     function loadData() {
       try {
-        return JSON.parse(localStorage.getItem(STORAGE_KEY)) || createDefaultData();
+        const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY));
+        if (!parsed) return createDefaultData();
+        if (!Array.isArray(parsed.tags)) parsed.tags = [];
+        if (!parsed.search) parsed.search = { text: '', tagId: 'all' };
+        parsed.tasks = (parsed.tasks || []).map(task => ({
+          ...task,
+          tagIds: Array.isArray(task.tagIds) ? task.tagIds : []
+        }));
+        return parsed;
       } catch {
         return createDefaultData();
       }
@@ -489,10 +578,31 @@
       monthlyDate: document.getElementById('monthlyDate'),
       taskTitle: document.getElementById('taskTitle'),
       taskMemo: document.getElementById('taskMemo'),
+      taskTagSelectBox: document.getElementById('taskTagSelectBox'),
+      newTagName: document.getElementById('newTagName'),
+      addTagBtn: document.getElementById('addTagBtn'),
+      tagManageList: document.getElementById('tagManageList'),
       addTaskBtn: document.getElementById('addTaskBtn'),
       content: document.getElementById('content'),
       tabs: document.querySelectorAll('.tab-btn')
     };
+
+    function getSelectedTagIds() {
+      return [...document.querySelectorAll('input[name="taskTagIds"]:checked')].map(el => el.value);
+    }
+
+    function getTagName(tagId) {
+      const tag = state.tags.find(t => t.id === tagId);
+      return tag ? tag.name : '';
+    }
+
+    function getTaskTagBadges(task) {
+      return (task.tagIds || [])
+        .map(id => getTagName(id))
+        .filter(Boolean)
+        .map(name => `<span class="badge">#${escapeHtml(name)}</span>`)
+        .join('');
+    }
 
     function syncForm() {
       els.dailyDate.value = state.filters.date;
@@ -502,14 +612,91 @@
       els.dailyDateWrap.style.display = type === 'daily' ? '' : 'none';
       els.weeklyDateWrap.style.display = type === 'weekly' ? '' : 'none';
       els.monthlyDateWrap.style.display = type === 'monthly' ? '' : 'none';
-
       els.tabs.forEach(btn => btn.classList.toggle('active', btn.dataset.tab === state.view));
+      renderTagSelectBox();
+      renderTagManageList();
+    }
+
+    function renderTagSelectBox() {
+      if (!state.tags.length) {
+        els.taskTagSelectBox.innerHTML = '<span class="small-note">등록된 태그가 없습니다.</span>';
+        return;
+      }
+      els.taskTagSelectBox.innerHTML = state.tags.map(tag => `
+        <label class="tag-check">
+          <input type="checkbox" name="taskTagIds" value="${tag.id}">
+          <span>#${escapeHtml(tag.name)}</span>
+        </label>
+      `).join('');
+    }
+
+    function renderTagManageList() {
+      if (!state.tags.length) {
+        els.tagManageList.innerHTML = '<div class="empty">등록된 태그가 없습니다.</div>';
+        return;
+      }
+      els.tagManageList.innerHTML = state.tags.map(tag => `
+        <div class="tag-manage-item">
+          <div>#${escapeHtml(tag.name)}</div>
+          <div class="tag-manage-actions">
+            <button class="icon-btn" type="button" onclick="editTag('${tag.id}')" title="수정">✎</button>
+            <button class="icon-btn" type="button" onclick="deleteTag('${tag.id}')" title="삭제">🗑</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function addTag() {
+      const name = els.newTagName.value.trim();
+      if (!name) return;
+      if (state.tags.some(tag => tag.name.toLowerCase() === name.toLowerCase())) {
+        alert('같은 이름의 태그가 이미 있습니다.');
+        return;
+      }
+      state.tags.push({ id: uid(), name });
+      els.newTagName.value = '';
+      saveData();
+      syncForm();
+      render();
+    }
+
+    function editTag(tagId) {
+      const tag = state.tags.find(t => t.id === tagId);
+      if (!tag) return;
+      const nextName = prompt('태그 이름 수정', tag.name);
+      if (nextName === null) return;
+      const cleanName = nextName.trim();
+      if (!cleanName) return;
+      if (state.tags.some(t => t.id !== tagId && t.name.toLowerCase() === cleanName.toLowerCase())) {
+        alert('같은 이름의 태그가 이미 있습니다.');
+        return;
+      }
+      tag.name = cleanName;
+      saveData();
+      syncForm();
+      render();
+    }
+
+    function deleteTag(tagId) {
+      const tag = state.tags.find(t => t.id === tagId);
+      if (!tag) return;
+      if (!confirm(`#${tag.name} 태그를 삭제할까요?`)) return;
+      state.tags = state.tags.filter(t => t.id !== tagId);
+      state.tasks = state.tasks.map(task => ({
+        ...task,
+        tagIds: (task.tagIds || []).filter(id => id !== tagId)
+      }));
+      if (state.search.tagId === tagId) state.search.tagId = 'all';
+      saveData();
+      syncForm();
+      render();
     }
 
     function addTask() {
       const type = els.taskType.value;
       const title = els.taskTitle.value.trim();
       const memo = els.taskMemo.value.trim();
+      const tagIds = getSelectedTagIds();
       if (!title) return;
 
       const task = {
@@ -517,7 +704,7 @@
         type,
         title,
         memo,
-        tags: extractTags(title + ' ' + memo),
+        tagIds,
         completed: false,
         rolledOverCount: 0,
         createdAt: Date.now(),
@@ -530,6 +717,7 @@
       state.tasks.unshift(task);
       els.taskTitle.value = '';
       els.taskMemo.value = '';
+      document.querySelectorAll('input[name="taskTagIds"]').forEach(el => { el.checked = false; });
       saveData();
       render();
     }
@@ -570,7 +758,7 @@
     }
 
     function renderTaskItem(task, compact = false) {
-      const tags = (task.tags || []).map(tag => `<span class="badge">${escapeHtml(tag)}</span>`).join('');
+      const tagBadges = getTaskTagBadges(task);
       return `
         <div class="task-item ${task.completed ? 'completed' : ''}">
           <div class="task-row">
@@ -585,7 +773,7 @@
               <div class="task-meta">
                 <span>${escapeHtml(taskPeriod(task))}</span>
               </div>
-              ${tags ? `<div class="task-tags">${tags}</div>` : ''}
+              ${tagBadges ? `<div class="task-tags">${tagBadges}</div>` : ''}
             </div>
             <div class="task-actions">
               <button class="icon-btn" onclick="carryTask('${task.id}')" title="다음으로 이월">↷</button>
@@ -707,31 +895,41 @@
       `;
     }
 
-    function renderTags() {
-      const map = new Map();
-      state.tasks.forEach(task => {
-        (task.tags || []).forEach(tag => {
-          if (!map.has(tag)) map.set(tag, []);
-          map.get(tag).push(task);
-        });
-      });
+    function getFilteredTasks() {
+      const text = (state.search.text || '').trim().toLowerCase();
+      const tagId = state.search.tagId;
+      return state.tasks.filter(task => {
+        const textMatch = !text || [task.title, task.memo].join(' ').toLowerCase().includes(text);
+        const tagMatch = tagId === 'all' || (task.tagIds || []).includes(tagId);
+        return textMatch && tagMatch;
+      }).sort(sortTasks);
+    }
 
-      const groups = [...map.entries()].sort((a, b) => a[0].localeCompare(b[0], 'ko'));
+    function renderSearch() {
+      const filtered = getFilteredTasks();
       return `
         <div class="card">
           <div class="card-body">
-            <div class="toolbar"><h2 class="toolbar-title"># 키워드 관리</h2></div>
-            ${groups.length ? groups.map(([tag, tasks]) => `
-              <div class="tag-group">
-                <div class="tag-heading">
-                  <span>${escapeHtml(tag)}</span>
-                  <span class="badge">${tasks.length}개</span>
-                </div>
-                <div class="task-list">
-                  ${tasks.sort(sortTasks).map(task => renderTaskItem(task, true)).join('')}
-                </div>
+            <div class="toolbar">
+              <h2 class="toolbar-title">태그별 / 텍스트 검색</h2>
+            </div>
+            <div class="search-box">
+              <div>
+                <label class="sub-label">텍스트 검색</label>
+                <input type="text" value="${escapeHtml(state.search.text)}" placeholder="제목 또는 메모 검색" oninput="changeSearchText(this.value)">
               </div>
-            `).join('') : renderEmpty('등록된 태그가 없습니다. 제목이나 메모에 #키워드를 입력하세요.')}
+              <div>
+                <label class="sub-label">태그별 검색</label>
+                <select onchange="changeSearchTag(this.value)">
+                  <option value="all" ${state.search.tagId === 'all' ? 'selected' : ''}>전체 태그</option>
+                  ${state.tags.map(tag => `<option value="${tag.id}" ${state.search.tagId === tag.id ? 'selected' : ''}>#${escapeHtml(tag.name)}</option>`).join('')}
+                </select>
+              </div>
+            </div>
+            <div class="search-result-count">검색 결과 ${filtered.length}개</div>
+            <div class="task-list">
+              ${filtered.length ? filtered.map(task => renderTaskItem(task)).join('') : renderEmpty('검색 결과가 없습니다.')}
+            </div>
           </div>
         </div>
       `;
@@ -742,11 +940,23 @@
       if (state.view === 'daily') els.content.innerHTML = renderDaily();
       else if (state.view === 'weekly') els.content.innerHTML = renderWeekly();
       else if (state.view === 'monthly') els.content.innerHTML = renderMonthly();
-      else els.content.innerHTML = renderTags();
+      else els.content.innerHTML = renderSearch();
     }
 
     function changeFilter(type, value) {
       state.filters[type] = value;
+      saveData();
+      render();
+    }
+
+    function changeSearchText(value) {
+      state.search.text = value;
+      saveData();
+      render();
+    }
+
+    function changeSearchTag(value) {
+      state.search.tagId = value;
       saveData();
       render();
     }
@@ -765,6 +975,10 @@
     els.weeklyDate.addEventListener('change', e => changeFilter('week', e.target.value));
     els.monthlyDate.addEventListener('change', e => changeFilter('month', e.target.value));
     els.addTaskBtn.addEventListener('click', addTask);
+    els.addTagBtn.addEventListener('click', addTag);
+    els.newTagName.addEventListener('keydown', e => {
+      if (e.key === 'Enter') addTag();
+    });
 
     els.tabs.forEach(btn => {
       btn.addEventListener('click', () => {
@@ -778,6 +992,10 @@
     window.deleteTask = deleteTask;
     window.carryTask = carryTask;
     window.changeFilter = changeFilter;
+    window.changeSearchText = changeSearchText;
+    window.changeSearchTag = changeSearchTag;
+    window.editTag = editTag;
+    window.deleteTag = deleteTag;
 
     autoRollover();
     syncForm();

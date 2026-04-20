@@ -1,0 +1,1062 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>할일 관리 프로그램</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+      background: #f4f6f8;
+      color: #1f2937;
+    }
+    .app {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 16px;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: 360px 1fr;
+      gap: 16px;
+      align-items: start;
+    }
+    .card {
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 20px;
+      box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
+      overflow: hidden;
+    }
+    .card-header {
+      padding: 18px 20px 10px;
+      border-bottom: 1px solid #f1f5f9;
+    }
+    .card-title {
+      margin: 0;
+      font-size: 22px;
+      font-weight: 700;
+    }
+    .card-body {
+      padding: 16px 20px 20px;
+    }
+    .section { margin-bottom: 14px; }
+    .label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 14px;
+      font-weight: 700;
+    }
+    input, select, textarea, button {
+      font: inherit;
+    }
+    input[type="text"],
+    input[type="date"],
+    input[type="month"],
+    textarea,
+    select {
+      width: 100%;
+      border: 1px solid #d1d5db;
+      border-radius: 14px;
+      padding: 12px 14px;
+      background: #fff;
+    }
+    textarea {
+      min-height: 110px;
+      resize: vertical;
+    }
+    .btn {
+      width: 100%;
+      border: 0;
+      border-radius: 14px;
+      padding: 12px 14px;
+      background: #111827;
+      color: #fff;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn:hover { opacity: 0.92; }
+    .guide {
+      margin-top: 12px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      background: #f8fafc;
+      border: 1px solid #e5e7eb;
+      font-size: 13px;
+      line-height: 1.5;
+      color: #475569;
+    }
+    .tabs {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .tab-btn {
+      border: 1px solid #d1d5db;
+      background: #fff;
+      border-radius: 14px;
+      padding: 12px 10px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .tab-btn.active {
+      background: #111827;
+      color: #fff;
+      border-color: #111827;
+    }
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+    .toolbar-title {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 700;
+    }
+    .toolbar-control {
+      width: 190px;
+      max-width: 100%;
+    }
+    .task-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .task-item {
+      border: 1px solid #e5e7eb;
+      border-radius: 18px;
+      padding: 14px;
+      background: #fff;
+    }
+    .task-item.completed {
+      opacity: 0.6;
+    }
+    .task-row {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+    .task-main {
+      flex: 1;
+      min-width: 0;
+    }
+    .task-title-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+    .task-title {
+      font-size: 16px;
+      font-weight: 700;
+      word-break: break-word;
+    }
+    .task-title.done {
+      text-decoration: line-through;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 5px 9px;
+      border-radius: 999px;
+      font-size: 12px;
+      border: 1px solid #d1d5db;
+      background: #f8fafc;
+      color: #334155;
+    }
+    .badge.dark {
+      background: #eef2ff;
+      border-color: #c7d2fe;
+      color: #3730a3;
+    }
+    .task-memo {
+      margin-top: 6px;
+      font-size: 14px;
+      line-height: 1.5;
+      color: #475569;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .task-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 8px;
+      font-size: 12px;
+      color: #64748b;
+    }
+    .task-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+    }
+    .task-actions {
+      display: flex;
+      gap: 6px;
+      flex-shrink: 0;
+      flex-wrap: wrap;
+    }
+    .icon-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 12px;
+      border: 1px solid #d1d5db;
+      background: #fff;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    .icon-btn:hover { background: #f8fafc; }
+    .empty {
+      border: 1px dashed #cbd5e1;
+      border-radius: 18px;
+      padding: 30px 16px;
+      text-align: center;
+      color: #64748b;
+      background: #fff;
+    }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 16px;
+    }
+    .grid-2-equal {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .small-note {
+      margin-bottom: 12px;
+      font-size: 13px;
+      color: #64748b;
+    }
+    .tag-group { margin-bottom: 22px; }
+    .tag-heading {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+      font-size: 18px;
+      font-weight: 700;
+    }
+    .calendar-wrap {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 10px;
+    }
+    .calendar-head {
+      text-align: center;
+      font-size: 13px;
+      font-weight: 700;
+      color: #64748b;
+      padding-bottom: 4px;
+    }
+    .calendar-cell {
+      min-height: 140px;
+      border: 1px solid #e5e7eb;
+      border-radius: 16px;
+      background: #fff;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .calendar-cell.muted {
+      background: #f8fafc;
+      opacity: 0.65;
+    }
+    .calendar-cell.today {
+      border-color: #111827;
+      box-shadow: inset 0 0 0 1px #111827;
+    }
+    .calendar-date {
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .calendar-items {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .calendar-task {
+      border-radius: 10px;
+      padding: 6px 8px;
+      font-size: 12px;
+      line-height: 1.35;
+      background: #f8fafc;
+      border: 1px solid #e5e7eb;
+      word-break: break-word;
+      cursor: pointer;
+    }
+    .calendar-task.daily { background: #eff6ff; border-color: #bfdbfe; }
+    .calendar-task.weekly { background: #f5f3ff; border-color: #ddd6fe; }
+    .calendar-task.monthly { background: #fefce8; border-color: #fde68a; }
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.45);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 1000;
+    }
+    .modal-backdrop.show { display: flex; }
+    .modal {
+      width: 100%;
+      max-width: 560px;
+      background: #fff;
+      border-radius: 20px;
+      border: 1px solid #e5e7eb;
+      box-shadow: 0 20px 50px rgba(15, 23, 42, 0.2);
+      overflow: hidden;
+    }
+    .modal-header {
+      padding: 18px 20px 10px;
+      border-bottom: 1px solid #f1f5f9;
+    }
+    .modal-body {
+      padding: 16px 20px 20px;
+    }
+    .btn-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .btn-sub {
+      flex: 1;
+      min-width: 120px;
+      border: 1px solid #d1d5db;
+      border-radius: 14px;
+      padding: 12px 14px;
+      background: #fff;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-sub.primary {
+      background: #111827;
+      color: #fff;
+      border-color: #111827;
+    }
+
+    @media (max-width: 1100px) {
+      .layout,
+      .grid-2,
+      .grid-2-equal {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .app { padding: 12px; }
+      .card-header { padding: 16px 16px 10px; }
+      .card-body { padding: 14px 16px 16px; }
+      .tabs { grid-template-columns: repeat(3, 1fr); }
+      .task-row { gap: 10px; }
+      .task-actions { flex-direction: column; }
+      .toolbar {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .toolbar-control { width: 100%; }
+      .calendar-wrap { grid-template-columns: repeat(1, 1fr); }
+      .calendar-head { display: none; }
+      .calendar-cell { min-height: auto; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="layout">
+      <div class="card">
+        <div class="card-header">
+          <h1 class="card-title">할일 관리</h1>
+        </div>
+        <div class="card-body">
+          <div class="section">
+            <label class="label">분류</label>
+            <select id="taskType">
+              <option value="daily">당일 할일</option>
+              <option value="weekly">그주 할일</option>
+              <option value="monthly">그달 할일</option>
+            </select>
+          </div>
+
+          <div class="section" id="dailyDateWrap">
+            <label class="label">날짜</label>
+            <input type="date" id="dailyDate" />
+          </div>
+
+          <div class="section" id="weeklyDateWrap" style="display:none;">
+            <label class="label">주 시작일(월요일)</label>
+            <input type="date" id="weeklyDate" />
+          </div>
+
+          <div class="section" id="monthlyDateWrap" style="display:none;">
+            <label class="label">월</label>
+            <input type="month" id="monthlyDate" />
+          </div>
+
+          <div class="section">
+            <label class="label">할일 제목</label>
+            <input type="text" id="taskTitle" placeholder="예: 거래처 견적 발송 #영업 #중요" />
+          </div>
+
+          <div class="section">
+            <label class="label">메모</label>
+            <textarea id="taskMemo" placeholder="상세 내용, 체크 포인트, 태그(#) 입력 가능"></textarea>
+          </div>
+
+          <button class="btn" id="addTaskBtn">추가</button>
+
+          <div class="guide">
+            미완료 업무는 다음 날짜·주·월로 자동 이월됩니다.<br>
+            이월된 업무는 다음 구간에서 최상단에 먼저 표시됩니다.<br>
+            제목이나 메모에 #키워드를 넣으면 자동 분류됩니다.
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="tabs">
+          <button class="tab-btn active" data-tab="daily">당일</button>
+          <button class="tab-btn" data-tab="weekly">주간</button>
+          <button class="tab-btn" data-tab="monthly">월간</button>
+          <button class="tab-btn" data-tab="calendar">달력</button>
+          <button class="tab-btn" data-tab="tags">#태그</button>
+        </div>
+
+        <div id="content"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="editModalBackdrop">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 class="card-title" style="font-size:20px;">할일 수정</h2>
+      </div>
+      <div class="modal-body">
+        <div class="section">
+          <label class="label">분류</label>
+          <select id="editTaskType">
+            <option value="daily">당일 할일</option>
+            <option value="weekly">그주 할일</option>
+            <option value="monthly">그달 할일</option>
+          </select>
+        </div>
+
+        <div class="section" id="editDailyDateWrap">
+          <label class="label">날짜</label>
+          <input type="date" id="editDailyDate" />
+        </div>
+
+        <div class="section" id="editWeeklyDateWrap" style="display:none;">
+          <label class="label">주 시작일(월요일)</label>
+          <input type="date" id="editWeeklyDate" />
+        </div>
+
+        <div class="section" id="editMonthlyDateWrap" style="display:none;">
+          <label class="label">월</label>
+          <input type="month" id="editMonthlyDate" />
+        </div>
+
+        <div class="section">
+          <label class="label">할일 제목</label>
+          <input type="text" id="editTaskTitle" />
+        </div>
+
+        <div class="section">
+          <label class="label">메모</label>
+          <textarea id="editTaskMemo"></textarea>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn-sub" id="editCancelBtn">취소</button>
+          <button class="btn-sub primary" id="editSaveBtn">저장</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'todo-manager-pc-mobile-v2';
+
+    function pad(n) {
+      return String(n).padStart(2, '0');
+    }
+
+    function todayKey(date = new Date()) {
+      return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+    }
+
+    function monthKey(date = new Date()) {
+      return `${date.getFullYear()}-${pad(date.getMonth() + 1)}`;
+    }
+
+    function getWeekStart(date = new Date()) {
+      const d = new Date(date);
+      const day = d.getDay();
+      const diff = day === 0 ? -6 : 1 - day;
+      d.setDate(d.getDate() + diff);
+      d.setHours(0, 0, 0, 0);
+      return d;
+    }
+
+    function weekKey(date = new Date()) {
+      return todayKey(getWeekStart(date));
+    }
+
+    function addDays(date, days) {
+      const d = new Date(date);
+      d.setDate(d.getDate() + days);
+      return d;
+    }
+
+    function nextDayKey(key) {
+      return todayKey(addDays(new Date(key), 1));
+    }
+
+    function nextWeekKey(key) {
+      return todayKey(addDays(new Date(key), 7));
+    }
+
+    function nextMonthKey(key) {
+      const [y, m] = key.split('-').map(Number);
+      const d = new Date(y, m - 1, 1);
+      d.setMonth(d.getMonth() + 1);
+      return monthKey(d);
+    }
+
+    function formatWeekLabel(key) {
+      const start = new Date(key);
+      const end = addDays(start, 6);
+      return `${todayKey(start)} ~ ${todayKey(end)}`;
+    }
+
+    function extractTags(text) {
+      const matches = text.match(/#[^\s#]+/g) || [];
+      return [...new Set(matches.map(v => v.toLowerCase()))];
+    }
+
+    function inWeek(dateKey, weekStartKey) {
+      const d = new Date(dateKey);
+      const start = new Date(weekStartKey);
+      const end = addDays(start, 6);
+      return d >= start && d <= end;
+    }
+
+    function sameMonth(dateKey, monthStr) {
+      return dateKey && dateKey.startsWith(monthStr);
+    }
+
+    function createDefaultData() {
+      return {
+        view: 'daily',
+        filters: {
+          date: todayKey(),
+          week: weekKey(),
+          month: monthKey()
+        },
+        tasks: []
+      };
+    }
+
+    function loadData() {
+      try {
+        return JSON.parse(localStorage.getItem(STORAGE_KEY)) || createDefaultData();
+      } catch {
+        return createDefaultData();
+      }
+    }
+
+    function saveData() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    function uid() {
+      return Date.now() + '-' + Math.random().toString(36).slice(2, 9);
+    }
+
+    function sortTasks(a, b) {
+      if (a.completed !== b.completed) return a.completed ? 1 : -1;
+      if (!a.completed && !b.completed && (a.rolledOverCount || 0) !== (b.rolledOverCount || 0)) {
+        return (b.rolledOverCount || 0) - (a.rolledOverCount || 0);
+      }
+      return (b.updatedAt || 0) - (a.updatedAt || 0);
+    }
+
+    let state = loadData();
+    let editingTaskId = null;
+
+    function autoRollover() {
+      const currentDate = todayKey();
+      const currentWeek = weekKey();
+      const currentMonth = monthKey();
+      let changed = false;
+
+      state.tasks = state.tasks.map(task => {
+        if (task.completed) return task;
+
+        if (task.type === 'daily' && task.dateKey < currentDate) {
+          changed = true;
+          return { ...task, dateKey: currentDate, rolledOverCount: (task.rolledOverCount || 0) + 1, updatedAt: Date.now() };
+        }
+        if (task.type === 'weekly' && task.weekKey < currentWeek) {
+          changed = true;
+          return { ...task, weekKey: currentWeek, rolledOverCount: (task.rolledOverCount || 0) + 1, updatedAt: Date.now() };
+        }
+        if (task.type === 'monthly' && task.monthKey < currentMonth) {
+          changed = true;
+          return { ...task, monthKey: currentMonth, rolledOverCount: (task.rolledOverCount || 0) + 1, updatedAt: Date.now() };
+        }
+        return task;
+      });
+
+      if (changed) saveData();
+    }
+
+    const els = {
+      taskType: document.getElementById('taskType'),
+      dailyDateWrap: document.getElementById('dailyDateWrap'),
+      weeklyDateWrap: document.getElementById('weeklyDateWrap'),
+      monthlyDateWrap: document.getElementById('monthlyDateWrap'),
+      dailyDate: document.getElementById('dailyDate'),
+      weeklyDate: document.getElementById('weeklyDate'),
+      monthlyDate: document.getElementById('monthlyDate'),
+      taskTitle: document.getElementById('taskTitle'),
+      taskMemo: document.getElementById('taskMemo'),
+      addTaskBtn: document.getElementById('addTaskBtn'),
+      content: document.getElementById('content'),
+      tabs: document.querySelectorAll('.tab-btn'),
+      editModalBackdrop: document.getElementById('editModalBackdrop'),
+      editTaskType: document.getElementById('editTaskType'),
+      editDailyDateWrap: document.getElementById('editDailyDateWrap'),
+      editWeeklyDateWrap: document.getElementById('editWeeklyDateWrap'),
+      editMonthlyDateWrap: document.getElementById('editMonthlyDateWrap'),
+      editDailyDate: document.getElementById('editDailyDate'),
+      editWeeklyDate: document.getElementById('editWeeklyDate'),
+      editMonthlyDate: document.getElementById('editMonthlyDate'),
+      editTaskTitle: document.getElementById('editTaskTitle'),
+      editTaskMemo: document.getElementById('editTaskMemo'),
+      editCancelBtn: document.getElementById('editCancelBtn'),
+      editSaveBtn: document.getElementById('editSaveBtn')
+    };
+
+    function syncForm() {
+      els.dailyDate.value = state.filters.date;
+      els.weeklyDate.value = state.filters.week;
+      els.monthlyDate.value = state.filters.month;
+      const type = els.taskType.value;
+      els.dailyDateWrap.style.display = type === 'daily' ? '' : 'none';
+      els.weeklyDateWrap.style.display = type === 'weekly' ? '' : 'none';
+      els.monthlyDateWrap.style.display = type === 'monthly' ? '' : 'none';
+      els.tabs.forEach(btn => btn.classList.toggle('active', btn.dataset.tab === state.view));
+    }
+
+    function syncEditForm() {
+      const type = els.editTaskType.value;
+      els.editDailyDateWrap.style.display = type === 'daily' ? '' : 'none';
+      els.editWeeklyDateWrap.style.display = type === 'weekly' ? '' : 'none';
+      els.editMonthlyDateWrap.style.display = type === 'monthly' ? '' : 'none';
+    }
+
+    function addTask() {
+      const type = els.taskType.value;
+      const title = els.taskTitle.value.trim();
+      const memo = els.taskMemo.value.trim();
+      if (!title) return;
+
+      const task = {
+        id: uid(),
+        type,
+        title,
+        memo,
+        tags: extractTags(title + ' ' + memo),
+        completed: false,
+        rolledOverCount: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        dateKey: type === 'daily' ? state.filters.date : null,
+        weekKey: type === 'weekly' ? state.filters.week : null,
+        monthKey: type === 'monthly' ? state.filters.month : null
+      };
+
+      state.tasks.unshift(task);
+      els.taskTitle.value = '';
+      els.taskMemo.value = '';
+      saveData();
+      render();
+    }
+
+    function toggleTask(id) {
+      state.tasks = state.tasks.map(task => task.id === id ? { ...task, completed: !task.completed, updatedAt: Date.now() } : task);
+      saveData();
+      render();
+    }
+
+    function openEditTask(id) {
+      const task = state.tasks.find(t => t.id === id);
+      if (!task) return;
+      editingTaskId = id;
+      els.editTaskType.value = task.type;
+      els.editTaskTitle.value = task.title || '';
+      els.editTaskMemo.value = task.memo || '';
+      els.editDailyDate.value = task.dateKey || state.filters.date;
+      els.editWeeklyDate.value = task.weekKey || state.filters.week;
+      els.editMonthlyDate.value = task.monthKey || state.filters.month;
+      syncEditForm();
+      els.editModalBackdrop.classList.add('show');
+    }
+
+    function closeEditTask() {
+      editingTaskId = null;
+      els.editModalBackdrop.classList.remove('show');
+    }
+
+    function saveEditedTask() {
+      if (!editingTaskId) return;
+      const type = els.editTaskType.value;
+      const title = els.editTaskTitle.value.trim();
+      const memo = els.editTaskMemo.value.trim();
+      if (!title) return;
+
+      state.tasks = state.tasks.map(task => {
+        if (task.id !== editingTaskId) return task;
+        return {
+          ...task,
+          type,
+          title,
+          memo,
+          tags: extractTags(title + ' ' + memo),
+          dateKey: type === 'daily' ? els.editDailyDate.value : null,
+          weekKey: type === 'weekly' ? els.editWeeklyDate.value : null,
+          monthKey: type === 'monthly' ? els.editMonthlyDate.value : null,
+          updatedAt: Date.now()
+        };
+      });
+
+      saveData();
+      closeEditTask();
+      render();
+    }
+
+    function deleteTask(id) {
+      state.tasks = state.tasks.filter(task => task.id !== id);
+      saveData();
+      render();
+    }
+
+    function carryTask(id) {
+      state.tasks = state.tasks.map(task => {
+        if (task.id !== id) return task;
+        if (task.type === 'daily') return { ...task, dateKey: nextDayKey(task.dateKey), rolledOverCount: (task.rolledOverCount || 0) + 1, updatedAt: Date.now() };
+        if (task.type === 'weekly') return { ...task, weekKey: nextWeekKey(task.weekKey), rolledOverCount: (task.rolledOverCount || 0) + 1, updatedAt: Date.now() };
+        return { ...task, monthKey: nextMonthKey(task.monthKey), rolledOverCount: (task.rolledOverCount || 0) + 1, updatedAt: Date.now() };
+      });
+      saveData();
+      render();
+    }
+
+    function taskTypeLabel(type) {
+      if (type === 'daily') return '당일';
+      if (type === 'weekly') return '주간';
+      return '월간';
+    }
+
+    function taskPeriod(task) {
+      if (task.type === 'daily') return `일정: ${task.dateKey}`;
+      if (task.type === 'weekly') return `주간: ${formatWeekLabel(task.weekKey)}`;
+      return `월간: ${task.monthKey}`;
+    }
+
+    function renderTaskItem(task, compact = false) {
+      const tags = (task.tags || []).map(tag => `<span class="badge">${escapeHtml(tag)}</span>`).join('');
+      return `
+        <div class="task-item ${task.completed ? 'completed' : ''}">
+          <div class="task-row">
+            <input type="checkbox" ${task.completed ? 'checked' : ''} onchange="toggleTask('${task.id}')" />
+            <div class="task-main">
+              <div class="task-title-row">
+                <div class="task-title ${task.completed ? 'done' : ''}">${escapeHtml(task.title)}</div>
+                <span class="badge dark">${taskTypeLabel(task.type)}</span>
+                ${task.rolledOverCount > 0 ? `<span class="badge">이월 ${task.rolledOverCount}회</span>` : ''}
+              </div>
+              ${!compact && task.memo ? `<div class="task-memo">${escapeHtml(task.memo)}</div>` : ''}
+              <div class="task-meta">
+                <span>${escapeHtml(taskPeriod(task))}</span>
+              </div>
+              ${tags ? `<div class="task-tags">${tags}</div>` : ''}
+            </div>
+            <div class="task-actions">
+              <button class="icon-btn" onclick="openEditTask('${task.id}')" title="수정">✎</button>
+              <button class="icon-btn" onclick="carryTask('${task.id}')" title="다음으로 이월">↷</button>
+              <button class="icon-btn" onclick="deleteTask('${task.id}')" title="삭제">🗑</button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderEmpty(text) {
+      return `<div class="empty">${escapeHtml(text)}</div>`;
+    }
+
+    function renderDaily() {
+      const tasks = state.tasks.filter(t => t.type === 'daily' && t.dateKey === state.filters.date).sort(sortTasks);
+      return `
+        <div class="card">
+          <div class="card-body">
+            <div class="toolbar">
+              <h2 class="toolbar-title">당일 할일</h2>
+              <input class="toolbar-control" type="date" value="${state.filters.date}" onchange="changeFilter('date', this.value)" />
+            </div>
+            <div class="task-list">
+              ${tasks.length ? tasks.map(task => renderTaskItem(task)).join('') : renderEmpty('해당 날짜의 할일이 없습니다.')}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderWeekly() {
+      const weeklyTasks = state.tasks.filter(t => t.type === 'weekly' && t.weekKey === state.filters.week).sort(sortTasks);
+      const dailyChildren = state.tasks
+        .filter(t => t.type === 'daily' && inWeek(t.dateKey, state.filters.week))
+        .sort((a, b) => {
+          if (a.completed !== b.completed) return a.completed ? 1 : -1;
+          if (a.dateKey !== b.dateKey) return a.dateKey.localeCompare(b.dateKey);
+          return (b.updatedAt || 0) - (a.updatedAt || 0);
+        });
+
+      return `
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-body">
+              <div class="toolbar">
+                <h2 class="toolbar-title">그주 할일</h2>
+                <input class="toolbar-control" type="date" value="${state.filters.week}" onchange="changeFilter('week', this.value)" />
+              </div>
+              <div class="small-note">범위: ${formatWeekLabel(state.filters.week)}</div>
+              <div class="task-list">
+                ${weeklyTasks.length ? weeklyTasks.map(task => renderTaskItem(task)).join('') : renderEmpty('해당 주의 주간업무가 없습니다.')}
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-body">
+              <div class="toolbar">
+                <h2 class="toolbar-title">이 주의 일일업무</h2>
+              </div>
+              <div class="task-list">
+                ${dailyChildren.length ? dailyChildren.map(task => renderTaskItem(task, true)).join('') : renderEmpty('이 주에 연결된 일일업무가 없습니다.')}
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderMonthly() {
+      const monthlyTasks = state.tasks.filter(t => t.type === 'monthly' && t.monthKey === state.filters.month).sort(sortTasks);
+      const weeklyChildren = state.tasks
+        .filter(t => t.type === 'weekly' && sameMonth(t.weekKey, state.filters.month))
+        .sort((a, b) => {
+          if (a.completed !== b.completed) return a.completed ? 1 : -1;
+          if (a.weekKey !== b.weekKey) return a.weekKey.localeCompare(b.weekKey);
+          return (b.updatedAt || 0) - (a.updatedAt || 0);
+        });
+      const dailyChildren = state.tasks
+        .filter(t => t.type === 'daily' && sameMonth(t.dateKey, state.filters.month))
+        .sort((a, b) => {
+          if (a.completed !== b.completed) return a.completed ? 1 : -1;
+          if (a.dateKey !== b.dateKey) return a.dateKey.localeCompare(b.dateKey);
+          return (b.updatedAt || 0) - (a.updatedAt || 0);
+        });
+
+      return `
+        <div>
+          <div class="card" style="margin-bottom:16px;">
+            <div class="card-body">
+              <div class="toolbar">
+                <h2 class="toolbar-title">그달 할일</h2>
+                <input class="toolbar-control" type="month" value="${state.filters.month}" onchange="changeFilter('month', this.value)" />
+              </div>
+              <div class="task-list">
+                ${monthlyTasks.length ? monthlyTasks.map(task => renderTaskItem(task)).join('') : renderEmpty('해당 월의 월간업무가 없습니다.')}
+              </div>
+            </div>
+          </div>
+          <div class="grid-2-equal">
+            <div class="card">
+              <div class="card-body">
+                <div class="toolbar"><h2 class="toolbar-title">이 달의 주간업무</h2></div>
+                <div class="task-list">
+                  ${weeklyChildren.length ? weeklyChildren.map(task => renderTaskItem(task, true)).join('') : renderEmpty('이 달의 주간업무가 없습니다.')}
+                </div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-body">
+                <div class="toolbar"><h2 class="toolbar-title">이 달의 일일업무</h2></div>
+                <div class="task-list">
+                  ${dailyChildren.length ? dailyChildren.map(task => renderTaskItem(task, true)).join('') : renderEmpty('이 달의 일일업무가 없습니다.')}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderTags() {
+      const map = new Map();
+      state.tasks.forEach(task => {
+        (task.tags || []).forEach(tag => {
+          if (!map.has(tag)) map.set(tag, []);
+          map.get(tag).push(task);
+        });
+      });
+
+      const groups = [...map.entries()].sort((a, b) => a[0].localeCompare(b[0], 'ko'));
+      return `
+        <div class="card">
+          <div class="card-body">
+            <div class="toolbar"><h2 class="toolbar-title"># 키워드 관리</h2></div>
+            ${groups.length ? groups.map(([tag, tasks]) => `
+              <div class="tag-group">
+                <div class="tag-heading">
+                  <span>${escapeHtml(tag)}</span>
+                  <span class="badge">${tasks.length}개</span>
+                </div>
+                <div class="task-list">
+                  ${tasks.sort(sortTasks).map(task => renderTaskItem(task, true)).join('')}
+                </div>
+              </div>
+            `).join('') : renderEmpty('등록된 태그가 없습니다. 제목이나 메모에 #키워드를 입력하세요.')}
+          </div>
+        </div>
+      `;
+    }
+
+    function getCalendarCells(monthStr) {
+      const [y, m] = monthStr.split('-').map(Number);
+      const first = new Date(y, m - 1, 1);
+      const firstDay = first.getDay();
+      const mondayIndex = firstDay === 0 ? 6 : firstDay - 1;
+      const start = addDays(first, -mondayIndex);
+      const cells = [];
+      for (let i = 0; i < 42; i++) cells.push(addDays(start, i));
+      return cells;
+    }
+
+    function getTasksForCalendarDay(dateStr, monthStr) {
+      const daily = state.tasks.filter(t => t.type === 'daily' && t.dateKey === dateStr);
+      const weekly = state.tasks.filter(t => t.type === 'weekly' && inWeek(dateStr, t.weekKey) && sameMonth(dateStr, monthStr));
+      const monthly = state.tasks.filter(t => t.type === 'monthly' && t.monthKey === monthStr);
+      const monthlyShown = dateStr.endsWith('-01') ? monthly : [];
+      return [...daily, ...weekly, ...monthlyShown].sort(sortTasks);
+    }
+
+    function renderCalendar() {
+      const heads = ['월', '화', '수', '목', '금', '토', '일'];
+      const cells = getCalendarCells(state.filters.month);
+      const today = todayKey();
+      return `
+        <div class="card">
+          <div class="card-body">
+            <div class="toolbar">
+              <h2 class="toolbar-title">월 달력 보기</h2>
+              <input class="toolbar-control" type="month" value="${state.filters.month}" onchange="changeFilter('month', this.value)" />
+            </div>
+            <div class="calendar-wrap" style="margin-bottom:10px;">
+              ${heads.map(h => `<div class="calendar-head">${h}</div>`).join('')}
+              ${cells.map(date => {
+                const dateStr = todayKey(date);
+                const isCurrentMonth = sameMonth(dateStr, state.filters.month);
+                const items = getTasksForCalendarDay(dateStr, state.filters.month);
+                return `
+                  <div class="calendar-cell ${isCurrentMonth ? '' : 'muted'} ${dateStr === today ? 'today' : ''}">
+                    <div class="calendar-date">${Number(dateStr.slice(-2))}</div>
+                    <div class="calendar-items">
+                      ${items.slice(0, 6).map(task => `<div class="calendar-task ${task.type}" onclick="openEditTask('${task.id}')">${escapeHtml(task.title)}</div>`).join('')}
+                      ${items.length > 6 ? `<div class="badge">+${items.length - 6}개 더</div>` : ''}
+                    </div>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+            <div class="guide" style="margin-top:0;">
+              파란색: 일일업무 / 보라색: 주간업무 / 노란색: 월간업무<br>
+              월간업무는 달력에서 1일 칸에 표시됩니다. 항목을 누르면 바로 수정할 수 있습니다.
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function render() {
+      syncForm();
+      if (state.view === 'daily') els.content.innerHTML = renderDaily();
+      else if (state.view === 'weekly') els.content.innerHTML = renderWeekly();
+      else if (state.view === 'monthly') els.content.innerHTML = renderMonthly();
+      else if (state.view === 'calendar') els.content.innerHTML = renderCalendar();
+      else els.content.innerHTML = renderTags();
+    }
+
+    function changeFilter(type, value) {
+      state.filters[type] = value;
+      saveData();
+      render();
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    els.taskType.addEventListener('change', syncForm);
+    els.dailyDate.addEventListener('change', e => changeFilter('date', e.target.value));
+    els.weeklyDate.addEventListener('change', e => changeFilter('week', e.target.value));
+    els.monthlyDate.addEventListener('change', e => changeFilter('month', e.target.value));
+    els.addTaskBtn.addEventListener('click', addTask);
+
+    els.tabs.forEach(btn => {
+      btn.addEventListener('click', () => {
+        state.view = btn.dataset.tab;
+        saveData();
+        render();
+      });
+    });
+
+    els.editTaskType.addEventListener('change', syncEditForm);
+    els.editCancelBtn.addEventListener('click', closeEditTask);
+    els.editSaveBtn.addEventListener('click', saveEditedTask);
+    els.editModalBackdrop.addEventListener('click', (e) => {
+      if (e.target === els.editModalBackdrop) closeEditTask();
+    });
+
+    window.toggleTask = toggleTask;
+    window.openEditTask = openEditTask;
+    window.deleteTask = deleteTask;
+    window.carryTask = carryTask;
+    window.changeFilter = changeFilter;
+
+    autoRollover();
+    syncForm();
+    render();
+  </script>
+</body>
+</html>

@@ -13,7 +13,7 @@
       color: #1f2937;
     }
     .app {
-      max-width: 1440px;
+      max-width: 1400px;
       margin: 0 auto;
       padding: 16px;
     }
@@ -90,7 +90,7 @@
     }
     .tabs {
       display: grid;
-      grid-template-columns: repeat(5, 1fr);
+      grid-template-columns: repeat(4, 1fr);
       gap: 8px;
       margin-bottom: 16px;
     }
@@ -203,7 +203,6 @@
       display: flex;
       gap: 6px;
       flex-shrink: 0;
-      flex-wrap: wrap;
     }
     .icon-btn {
       width: 36px;
@@ -247,105 +246,6 @@
       font-size: 18px;
       font-weight: 700;
     }
-    .calendar-wrap {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 10px;
-    }
-    .calendar-head {
-      text-align: center;
-      font-size: 13px;
-      font-weight: 700;
-      color: #64748b;
-      padding-bottom: 4px;
-    }
-    .calendar-cell {
-      min-height: 140px;
-      border: 1px solid #e5e7eb;
-      border-radius: 16px;
-      background: #fff;
-      padding: 10px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-    .calendar-cell.muted {
-      background: #f8fafc;
-      opacity: 0.65;
-    }
-    .calendar-cell.today {
-      border-color: #111827;
-      box-shadow: inset 0 0 0 1px #111827;
-    }
-    .calendar-date {
-      font-size: 13px;
-      font-weight: 700;
-    }
-    .calendar-items {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-    .calendar-task {
-      border-radius: 10px;
-      padding: 6px 8px;
-      font-size: 12px;
-      line-height: 1.35;
-      background: #f8fafc;
-      border: 1px solid #e5e7eb;
-      word-break: break-word;
-      cursor: pointer;
-    }
-    .calendar-task.daily { background: #eff6ff; border-color: #bfdbfe; }
-    .calendar-task.weekly { background: #f5f3ff; border-color: #ddd6fe; }
-    .calendar-task.monthly { background: #fefce8; border-color: #fde68a; }
-    .modal-backdrop {
-      position: fixed;
-      inset: 0;
-      background: rgba(15, 23, 42, 0.45);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 16px;
-      z-index: 1000;
-    }
-    .modal-backdrop.show { display: flex; }
-    .modal {
-      width: 100%;
-      max-width: 560px;
-      background: #fff;
-      border-radius: 20px;
-      border: 1px solid #e5e7eb;
-      box-shadow: 0 20px 50px rgba(15, 23, 42, 0.2);
-      overflow: hidden;
-    }
-    .modal-header {
-      padding: 18px 20px 10px;
-      border-bottom: 1px solid #f1f5f9;
-    }
-    .modal-body {
-      padding: 16px 20px 20px;
-    }
-    .btn-row {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-    .btn-sub {
-      flex: 1;
-      min-width: 120px;
-      border: 1px solid #d1d5db;
-      border-radius: 14px;
-      padding: 12px 14px;
-      background: #fff;
-      font-weight: 700;
-      cursor: pointer;
-    }
-    .btn-sub.primary {
-      background: #111827;
-      color: #fff;
-      border-color: #111827;
-    }
 
     @media (max-width: 1100px) {
       .layout,
@@ -359,17 +259,18 @@
       .app { padding: 12px; }
       .card-header { padding: 16px 16px 10px; }
       .card-body { padding: 14px 16px 16px; }
-      .tabs { grid-template-columns: repeat(3, 1fr); }
+      .tabs { grid-template-columns: repeat(2, 1fr); }
       .task-row { gap: 10px; }
-      .task-actions { flex-direction: column; }
+      .task-actions {
+        flex-direction: column;
+      }
       .toolbar {
         flex-direction: column;
         align-items: stretch;
       }
-      .toolbar-control { width: 100%; }
-      .calendar-wrap { grid-template-columns: repeat(1, 1fr); }
-      .calendar-head { display: none; }
-      .calendar-cell { min-height: auto; }
+      .toolbar-control {
+        width: 100%;
+      }
     }
   </style>
 </head>
@@ -430,7 +331,6 @@
           <button class="tab-btn active" data-tab="daily">당일</button>
           <button class="tab-btn" data-tab="weekly">주간</button>
           <button class="tab-btn" data-tab="monthly">월간</button>
-          <button class="tab-btn" data-tab="calendar">달력</button>
           <button class="tab-btn" data-tab="tags">#태그</button>
         </div>
 
@@ -439,56 +339,8 @@
     </div>
   </div>
 
-  <div class="modal-backdrop" id="editModalBackdrop">
-    <div class="modal">
-      <div class="modal-header">
-        <h2 class="card-title" style="font-size:20px;">할일 수정</h2>
-      </div>
-      <div class="modal-body">
-        <div class="section">
-          <label class="label">분류</label>
-          <select id="editTaskType">
-            <option value="daily">당일 할일</option>
-            <option value="weekly">그주 할일</option>
-            <option value="monthly">그달 할일</option>
-          </select>
-        </div>
-
-        <div class="section" id="editDailyDateWrap">
-          <label class="label">날짜</label>
-          <input type="date" id="editDailyDate" />
-        </div>
-
-        <div class="section" id="editWeeklyDateWrap" style="display:none;">
-          <label class="label">주 시작일(월요일)</label>
-          <input type="date" id="editWeeklyDate" />
-        </div>
-
-        <div class="section" id="editMonthlyDateWrap" style="display:none;">
-          <label class="label">월</label>
-          <input type="month" id="editMonthlyDate" />
-        </div>
-
-        <div class="section">
-          <label class="label">할일 제목</label>
-          <input type="text" id="editTaskTitle" />
-        </div>
-
-        <div class="section">
-          <label class="label">메모</label>
-          <textarea id="editTaskMemo"></textarea>
-        </div>
-
-        <div class="btn-row">
-          <button class="btn-sub" id="editCancelBtn">취소</button>
-          <button class="btn-sub primary" id="editSaveBtn">저장</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <script>
-    const STORAGE_KEY = 'todo-manager-pc-mobile-v2';
+    const STORAGE_KEY = 'todo-manager-pc-mobile-v1';
 
     function pad(n) {
       return String(n).padStart(2, '0');
@@ -536,6 +388,10 @@
       return monthKey(d);
     }
 
+    function formatDateLabel(key) {
+      return key;
+    }
+
     function formatWeekLabel(key) {
       const start = new Date(key);
       const end = addDays(start, 6);
@@ -555,7 +411,7 @@
     }
 
     function sameMonth(dateKey, monthStr) {
-      return dateKey && dateKey.startsWith(monthStr);
+      return dateKey.startsWith(monthStr);
     }
 
     function createDefaultData() {
@@ -595,7 +451,6 @@
     }
 
     let state = loadData();
-    let editingTaskId = null;
 
     function autoRollover() {
       const currentDate = todayKey();
@@ -636,19 +491,7 @@
       taskMemo: document.getElementById('taskMemo'),
       addTaskBtn: document.getElementById('addTaskBtn'),
       content: document.getElementById('content'),
-      tabs: document.querySelectorAll('.tab-btn'),
-      editModalBackdrop: document.getElementById('editModalBackdrop'),
-      editTaskType: document.getElementById('editTaskType'),
-      editDailyDateWrap: document.getElementById('editDailyDateWrap'),
-      editWeeklyDateWrap: document.getElementById('editWeeklyDateWrap'),
-      editMonthlyDateWrap: document.getElementById('editMonthlyDateWrap'),
-      editDailyDate: document.getElementById('editDailyDate'),
-      editWeeklyDate: document.getElementById('editWeeklyDate'),
-      editMonthlyDate: document.getElementById('editMonthlyDate'),
-      editTaskTitle: document.getElementById('editTaskTitle'),
-      editTaskMemo: document.getElementById('editTaskMemo'),
-      editCancelBtn: document.getElementById('editCancelBtn'),
-      editSaveBtn: document.getElementById('editSaveBtn')
+      tabs: document.querySelectorAll('.tab-btn')
     };
 
     function syncForm() {
@@ -659,14 +502,8 @@
       els.dailyDateWrap.style.display = type === 'daily' ? '' : 'none';
       els.weeklyDateWrap.style.display = type === 'weekly' ? '' : 'none';
       els.monthlyDateWrap.style.display = type === 'monthly' ? '' : 'none';
-      els.tabs.forEach(btn => btn.classList.toggle('active', btn.dataset.tab === state.view));
-    }
 
-    function syncEditForm() {
-      const type = els.editTaskType.value;
-      els.editDailyDateWrap.style.display = type === 'daily' ? '' : 'none';
-      els.editWeeklyDateWrap.style.display = type === 'weekly' ? '' : 'none';
-      els.editMonthlyDateWrap.style.display = type === 'monthly' ? '' : 'none';
+      els.tabs.forEach(btn => btn.classList.toggle('active', btn.dataset.tab === state.view));
     }
 
     function addTask() {
@@ -700,52 +537,6 @@
     function toggleTask(id) {
       state.tasks = state.tasks.map(task => task.id === id ? { ...task, completed: !task.completed, updatedAt: Date.now() } : task);
       saveData();
-      render();
-    }
-
-    function openEditTask(id) {
-      const task = state.tasks.find(t => t.id === id);
-      if (!task) return;
-      editingTaskId = id;
-      els.editTaskType.value = task.type;
-      els.editTaskTitle.value = task.title || '';
-      els.editTaskMemo.value = task.memo || '';
-      els.editDailyDate.value = task.dateKey || state.filters.date;
-      els.editWeeklyDate.value = task.weekKey || state.filters.week;
-      els.editMonthlyDate.value = task.monthKey || state.filters.month;
-      syncEditForm();
-      els.editModalBackdrop.classList.add('show');
-    }
-
-    function closeEditTask() {
-      editingTaskId = null;
-      els.editModalBackdrop.classList.remove('show');
-    }
-
-    function saveEditedTask() {
-      if (!editingTaskId) return;
-      const type = els.editTaskType.value;
-      const title = els.editTaskTitle.value.trim();
-      const memo = els.editTaskMemo.value.trim();
-      if (!title) return;
-
-      state.tasks = state.tasks.map(task => {
-        if (task.id !== editingTaskId) return task;
-        return {
-          ...task,
-          type,
-          title,
-          memo,
-          tags: extractTags(title + ' ' + memo),
-          dateKey: type === 'daily' ? els.editDailyDate.value : null,
-          weekKey: type === 'weekly' ? els.editWeeklyDate.value : null,
-          monthKey: type === 'monthly' ? els.editMonthlyDate.value : null,
-          updatedAt: Date.now()
-        };
-      });
-
-      saveData();
-      closeEditTask();
       render();
     }
 
@@ -797,7 +588,6 @@
               ${tags ? `<div class="task-tags">${tags}</div>` : ''}
             </div>
             <div class="task-actions">
-              <button class="icon-btn" onclick="openEditTask('${task.id}')" title="수정">✎</button>
               <button class="icon-btn" onclick="carryTask('${task.id}')" title="다음으로 이월">↷</button>
               <button class="icon-btn" onclick="deleteTask('${task.id}')" title="삭제">🗑</button>
             </div>
@@ -947,68 +737,11 @@
       `;
     }
 
-    function getCalendarCells(monthStr) {
-      const [y, m] = monthStr.split('-').map(Number);
-      const first = new Date(y, m - 1, 1);
-      const firstDay = first.getDay();
-      const mondayIndex = firstDay === 0 ? 6 : firstDay - 1;
-      const start = addDays(first, -mondayIndex);
-      const cells = [];
-      for (let i = 0; i < 42; i++) cells.push(addDays(start, i));
-      return cells;
-    }
-
-    function getTasksForCalendarDay(dateStr, monthStr) {
-      const daily = state.tasks.filter(t => t.type === 'daily' && t.dateKey === dateStr);
-      const weekly = state.tasks.filter(t => t.type === 'weekly' && inWeek(dateStr, t.weekKey) && sameMonth(dateStr, monthStr));
-      const monthly = state.tasks.filter(t => t.type === 'monthly' && t.monthKey === monthStr);
-      const monthlyShown = dateStr.endsWith('-01') ? monthly : [];
-      return [...daily, ...weekly, ...monthlyShown].sort(sortTasks);
-    }
-
-    function renderCalendar() {
-      const heads = ['월', '화', '수', '목', '금', '토', '일'];
-      const cells = getCalendarCells(state.filters.month);
-      const today = todayKey();
-      return `
-        <div class="card">
-          <div class="card-body">
-            <div class="toolbar">
-              <h2 class="toolbar-title">월 달력 보기</h2>
-              <input class="toolbar-control" type="month" value="${state.filters.month}" onchange="changeFilter('month', this.value)" />
-            </div>
-            <div class="calendar-wrap" style="margin-bottom:10px;">
-              ${heads.map(h => `<div class="calendar-head">${h}</div>`).join('')}
-              ${cells.map(date => {
-                const dateStr = todayKey(date);
-                const isCurrentMonth = sameMonth(dateStr, state.filters.month);
-                const items = getTasksForCalendarDay(dateStr, state.filters.month);
-                return `
-                  <div class="calendar-cell ${isCurrentMonth ? '' : 'muted'} ${dateStr === today ? 'today' : ''}">
-                    <div class="calendar-date">${Number(dateStr.slice(-2))}</div>
-                    <div class="calendar-items">
-                      ${items.slice(0, 6).map(task => `<div class="calendar-task ${task.type}" onclick="openEditTask('${task.id}')">${escapeHtml(task.title)}</div>`).join('')}
-                      ${items.length > 6 ? `<div class="badge">+${items.length - 6}개 더</div>` : ''}
-                    </div>
-                  </div>
-                `;
-              }).join('')}
-            </div>
-            <div class="guide" style="margin-top:0;">
-              파란색: 일일업무 / 보라색: 주간업무 / 노란색: 월간업무<br>
-              월간업무는 달력에서 1일 칸에 표시됩니다. 항목을 누르면 바로 수정할 수 있습니다.
-            </div>
-          </div>
-        </div>
-      `;
-    }
-
     function render() {
       syncForm();
       if (state.view === 'daily') els.content.innerHTML = renderDaily();
       else if (state.view === 'weekly') els.content.innerHTML = renderWeekly();
       else if (state.view === 'monthly') els.content.innerHTML = renderMonthly();
-      else if (state.view === 'calendar') els.content.innerHTML = renderCalendar();
       else els.content.innerHTML = renderTags();
     }
 
@@ -1041,15 +774,7 @@
       });
     });
 
-    els.editTaskType.addEventListener('change', syncEditForm);
-    els.editCancelBtn.addEventListener('click', closeEditTask);
-    els.editSaveBtn.addEventListener('click', saveEditedTask);
-    els.editModalBackdrop.addEventListener('click', (e) => {
-      if (e.target === els.editModalBackdrop) closeEditTask();
-    });
-
     window.toggleTask = toggleTask;
-    window.openEditTask = openEditTask;
     window.deleteTask = deleteTask;
     window.carryTask = carryTask;
     window.changeFilter = changeFilter;

@@ -13,13 +13,13 @@
       color: #1f2937;
     }
     .app {
-      max-width: 1400px;
+      max-width: 1440px;
       margin: 0 auto;
       padding: 16px;
     }
     .layout {
       display: grid;
-      grid-template-columns: 360px 1fr;
+      grid-template-columns: 380px 1fr;
       gap: 16px;
       align-items: start;
     }
@@ -94,6 +94,11 @@
       font-weight: 700;
     }
     .btn-inline:hover { background: #f8fafc; }
+    .btn-inline.primary {
+      background: #111827;
+      color: #fff;
+      border-color: #111827;
+    }
     .guide {
       margin-top: 12px;
       padding: 12px 14px;
@@ -106,7 +111,7 @@
     }
     .tabs {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(5, 1fr);
       gap: 8px;
       margin-bottom: 16px;
     }
@@ -193,6 +198,21 @@
       border-color: #c7d2fe;
       color: #3730a3;
     }
+    .badge.daily {
+      background: #eff6ff;
+      border-color: #bfdbfe;
+      color: #1d4ed8;
+    }
+    .badge.weekly {
+      background: #f5f3ff;
+      border-color: #ddd6fe;
+      color: #6d28d9;
+    }
+    .badge.monthly {
+      background: #fefce8;
+      border-color: #fde68a;
+      color: #a16207;
+    }
     .task-memo {
       margin-top: 6px;
       font-size: 14px;
@@ -219,6 +239,7 @@
       display: flex;
       gap: 6px;
       flex-shrink: 0;
+      flex-wrap: wrap;
     }
     .icon-btn {
       width: 36px;
@@ -313,6 +334,98 @@
       color: #64748b;
       margin-bottom: 12px;
     }
+    .calendar-wrap {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 10px;
+    }
+    .calendar-head {
+      text-align: center;
+      font-size: 13px;
+      font-weight: 700;
+      color: #64748b;
+      padding-bottom: 4px;
+    }
+    .calendar-cell {
+      min-height: 150px;
+      border: 1px solid #e5e7eb;
+      border-radius: 16px;
+      background: #fff;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .calendar-cell.muted {
+      background: #f8fafc;
+      opacity: 0.6;
+    }
+    .calendar-cell.today {
+      border-color: #111827;
+      box-shadow: inset 0 0 0 1px #111827;
+    }
+    .calendar-date {
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .calendar-items {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .calendar-task {
+      border-radius: 10px;
+      padding: 6px 8px;
+      font-size: 12px;
+      line-height: 1.35;
+      border: 1px solid #e5e7eb;
+      word-break: break-word;
+      cursor: pointer;
+    }
+    .calendar-task.daily {
+      background: #eff6ff;
+      border-color: #bfdbfe;
+    }
+    .calendar-task.weekly {
+      background: #f5f3ff;
+      border-color: #ddd6fe;
+    }
+    .calendar-task.monthly {
+      background: #fefce8;
+      border-color: #fde68a;
+    }
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.45);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 1000;
+    }
+    .modal-backdrop.show { display: flex; }
+    .modal {
+      width: 100%;
+      max-width: 560px;
+      background: #fff;
+      border-radius: 20px;
+      border: 1px solid #e5e7eb;
+      box-shadow: 0 20px 50px rgba(15, 23, 42, 0.2);
+      overflow: hidden;
+    }
+    .modal-header {
+      padding: 18px 20px 10px;
+      border-bottom: 1px solid #f1f5f9;
+    }
+    .modal-body {
+      padding: 16px 20px 20px;
+    }
+    .btn-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
 
     @media (max-width: 1100px) {
       .layout,
@@ -327,7 +440,7 @@
       .app { padding: 12px; }
       .card-header { padding: 16px 16px 10px; }
       .card-body { padding: 14px 16px 16px; }
-      .tabs { grid-template-columns: repeat(2, 1fr); }
+      .tabs { grid-template-columns: repeat(3, 1fr); }
       .task-row { gap: 10px; }
       .task-actions { flex-direction: column; }
       .toolbar {
@@ -338,6 +451,15 @@
       .field-row {
         flex-direction: column;
         align-items: stretch;
+      }
+      .calendar-wrap {
+        grid-template-columns: 1fr;
+      }
+      .calendar-head {
+        display: none;
+      }
+      .calendar-cell {
+        min-height: auto;
       }
     }
   </style>
@@ -389,12 +511,12 @@
             <div class="tag-select-box" id="taskTagSelectBox"></div>
           </div>
 
-          <button class="btn" id="addTaskBtn">추가</button>
+          <button class="btn" id="addTaskBtn" type="button">추가</button>
 
           <div class="guide">
             태그는 아래의 태그 관리에서 별도로 등록합니다.<br>
             일정 등록 시에는 등록된 태그를 선택해서 붙일 수 있습니다.<br>
-            미완료 업무는 다음 날짜·주·월로 자동 이월됩니다.
+            미완료 업무는 다음 날짜·주·월로 자동 이월되고, 이월 항목은 최상단에 먼저 표시됩니다.
           </div>
 
           <div class="section" style="margin-top:16px;">
@@ -413,6 +535,7 @@
           <button class="tab-btn active" data-tab="daily">당일</button>
           <button class="tab-btn" data-tab="weekly">주간</button>
           <button class="tab-btn" data-tab="monthly">월간</button>
+          <button class="tab-btn" data-tab="calendar">달력</button>
           <button class="tab-btn" data-tab="search">검색</button>
         </div>
 
@@ -421,11 +544,68 @@
     </div>
   </div>
 
+  <div class="modal-backdrop" id="editModalBackdrop">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 class="card-title" style="font-size:20px;">할일 수정</h2>
+      </div>
+      <div class="modal-body">
+        <div class="section">
+          <label class="label">분류</label>
+          <select id="editTaskType">
+            <option value="daily">당일 할일</option>
+            <option value="weekly">그주 할일</option>
+            <option value="monthly">그달 할일</option>
+          </select>
+        </div>
+
+        <div class="section" id="editDailyDateWrap">
+          <label class="label">날짜</label>
+          <input type="date" id="editDailyDate" />
+        </div>
+
+        <div class="section" id="editWeeklyDateWrap" style="display:none;">
+          <label class="label">주 시작일(월요일)</label>
+          <input type="date" id="editWeeklyDate" />
+        </div>
+
+        <div class="section" id="editMonthlyDateWrap" style="display:none;">
+          <label class="label">월</label>
+          <input type="month" id="editMonthlyDate" />
+        </div>
+
+        <div class="section">
+          <label class="label">할일 제목</label>
+          <input type="text" id="editTaskTitle" />
+        </div>
+
+        <div class="section">
+          <label class="label">메모</label>
+          <textarea id="editTaskMemo"></textarea>
+        </div>
+
+        <div class="section">
+          <label class="label">태그 선택</label>
+          <div class="tag-select-box" id="editTaskTagSelectBox"></div>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn-inline" id="editCancelBtn" type="button">취소</button>
+          <button class="btn-inline primary" id="editSaveBtn" type="button">저장</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script>
-    const STORAGE_KEY = 'todo-manager-pc-mobile-v2';
+    const STORAGE_KEY = "todo-manager-final-v1";
+
+    function uid() {
+      return Date.now() + "-" + Math.random().toString(36).slice(2, 9);
+    }
 
     function pad(n) {
-      return String(n).padStart(2, '0');
+      return String(n).padStart(2, "0");
     }
 
     function todayKey(date = new Date()) {
@@ -464,7 +644,7 @@
     }
 
     function nextMonthKey(key) {
-      const [y, m] = key.split('-').map(Number);
+      const [y, m] = key.split("-").map(Number);
       const d = new Date(y, m - 1, 1);
       d.setMonth(d.getMonth() + 1);
       return monthKey(d);
@@ -484,24 +664,33 @@
     }
 
     function sameMonth(dateKey, monthStr) {
-      return dateKey.startsWith(monthStr);
+      return !!dateKey && dateKey.startsWith(monthStr);
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
     }
 
     function createDefaultData() {
       return {
-        view: 'daily',
+        view: "daily",
         filters: {
           date: todayKey(),
           week: weekKey(),
           month: monthKey()
         },
         search: {
-          text: '',
-          tagId: 'all'
+          text: "",
+          tagId: "all"
         },
         tags: [
-          { id: uid(), name: '중요' },
-          { id: uid(), name: '업무' }
+          { id: uid(), name: "중요" },
+          { id: uid(), name: "업무" }
         ],
         tasks: []
       };
@@ -511,24 +700,39 @@
       try {
         const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY));
         if (!parsed) return createDefaultData();
+
+        if (!parsed.filters) {
+          parsed.filters = {
+            date: todayKey(),
+            week: weekKey(),
+            month: monthKey()
+          };
+        }
+        if (!parsed.search) {
+          parsed.search = {
+            text: "",
+            tagId: "all"
+          };
+        }
         if (!Array.isArray(parsed.tags)) parsed.tags = [];
-        if (!parsed.search) parsed.search = { text: '', tagId: 'all' };
-        parsed.tasks = (parsed.tasks || []).map(task => ({
+        if (!Array.isArray(parsed.tasks)) parsed.tasks = [];
+
+        parsed.tasks = parsed.tasks.map(task => ({
           ...task,
           tagIds: Array.isArray(task.tagIds) ? task.tagIds : []
         }));
+
         return parsed;
       } catch {
         return createDefaultData();
       }
     }
 
+    let state = loadData();
+    let editingTaskId = null;
+
     function saveData() {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    }
-
-    function uid() {
-      return Date.now() + '-' + Math.random().toString(36).slice(2, 9);
     }
 
     function sortTasks(a, b) {
@@ -539,8 +743,6 @@
       return (b.updatedAt || 0) - (a.updatedAt || 0);
     }
 
-    let state = loadData();
-
     function autoRollover() {
       const currentDate = todayKey();
       const currentWeek = weekKey();
@@ -550,18 +752,36 @@
       state.tasks = state.tasks.map(task => {
         if (task.completed) return task;
 
-        if (task.type === 'daily' && task.dateKey < currentDate) {
+        if (task.type === "daily" && task.dateKey < currentDate) {
           changed = true;
-          return { ...task, dateKey: currentDate, rolledOverCount: (task.rolledOverCount || 0) + 1, updatedAt: Date.now() };
+          return {
+            ...task,
+            dateKey: currentDate,
+            rolledOverCount: (task.rolledOverCount || 0) + 1,
+            updatedAt: Date.now()
+          };
         }
-        if (task.type === 'weekly' && task.weekKey < currentWeek) {
+
+        if (task.type === "weekly" && task.weekKey < currentWeek) {
           changed = true;
-          return { ...task, weekKey: currentWeek, rolledOverCount: (task.rolledOverCount || 0) + 1, updatedAt: Date.now() };
+          return {
+            ...task,
+            weekKey: currentWeek,
+            rolledOverCount: (task.rolledOverCount || 0) + 1,
+            updatedAt: Date.now()
+          };
         }
-        if (task.type === 'monthly' && task.monthKey < currentMonth) {
+
+        if (task.type === "monthly" && task.monthKey < currentMonth) {
           changed = true;
-          return { ...task, monthKey: currentMonth, rolledOverCount: (task.rolledOverCount || 0) + 1, updatedAt: Date.now() };
+          return {
+            ...task,
+            monthKey: currentMonth,
+            rolledOverCount: (task.rolledOverCount || 0) + 1,
+            updatedAt: Date.now()
+          };
         }
+
         return task;
       });
 
@@ -569,65 +789,59 @@
     }
 
     const els = {
-      taskType: document.getElementById('taskType'),
-      dailyDateWrap: document.getElementById('dailyDateWrap'),
-      weeklyDateWrap: document.getElementById('weeklyDateWrap'),
-      monthlyDateWrap: document.getElementById('monthlyDateWrap'),
-      dailyDate: document.getElementById('dailyDate'),
-      weeklyDate: document.getElementById('weeklyDate'),
-      monthlyDate: document.getElementById('monthlyDate'),
-      taskTitle: document.getElementById('taskTitle'),
-      taskMemo: document.getElementById('taskMemo'),
-      taskTagSelectBox: document.getElementById('taskTagSelectBox'),
-      newTagName: document.getElementById('newTagName'),
-      addTagBtn: document.getElementById('addTagBtn'),
-      tagManageList: document.getElementById('tagManageList'),
-      addTaskBtn: document.getElementById('addTaskBtn'),
-      content: document.getElementById('content'),
-      tabs: document.querySelectorAll('.tab-btn')
-    };
+      taskType: document.getElementById("taskType"),
+      dailyDateWrap: document.getElementById("dailyDateWrap"),
+      weeklyDateWrap: document.getElementById("weeklyDateWrap"),
+      monthlyDateWrap: document.getElementById("monthlyDateWrap"),
+      dailyDate: document.getElementById("dailyDate"),
+      weeklyDate: document.getElementById("weeklyDate"),
+      monthlyDate: document.getElementById("monthlyDate"),
+      taskTitle: document.getElementById("taskTitle"),
+      taskMemo: document.getElementById("taskMemo"),
+      taskTagSelectBox: document.getElementById("taskTagSelectBox"),
+      newTagName: document.getElementById("newTagName"),
+      addTagBtn: document.getElementById("addTagBtn"),
+      tagManageList: document.getElementById("tagManageList"),
+      addTaskBtn: document.getElementById("addTaskBtn"),
+      content: document.getElementById("content"),
+      tabs: document.querySelectorAll(".tab-btn"),
 
-    function getSelectedTagIds() {
-      return [...document.querySelectorAll('input[name="taskTagIds"]:checked')].map(el => el.value);
-    }
+      editModalBackdrop: document.getElementById("editModalBackdrop"),
+      editTaskType: document.getElementById("editTaskType"),
+      editDailyDateWrap: document.getElementById("editDailyDateWrap"),
+      editWeeklyDateWrap: document.getElementById("editWeeklyDateWrap"),
+      editMonthlyDateWrap: document.getElementById("editMonthlyDateWrap"),
+      editDailyDate: document.getElementById("editDailyDate"),
+      editWeeklyDate: document.getElementById("editWeeklyDate"),
+      editMonthlyDate: document.getElementById("editMonthlyDate"),
+      editTaskTitle: document.getElementById("editTaskTitle"),
+      editTaskMemo: document.getElementById("editTaskMemo"),
+      editTaskTagSelectBox: document.getElementById("editTaskTagSelectBox"),
+      editCancelBtn: document.getElementById("editCancelBtn"),
+      editSaveBtn: document.getElementById("editSaveBtn")
+    };
 
     function getTagName(tagId) {
       const tag = state.tags.find(t => t.id === tagId);
-      return tag ? tag.name : '';
+      return tag ? tag.name : "";
     }
 
-    function getTaskTagBadges(task) {
-      return (task.tagIds || [])
-        .map(id => getTagName(id))
-        .filter(Boolean)
-        .map(name => `<span class="badge">#${escapeHtml(name)}</span>`)
-        .join('');
-    }
-
-    function syncForm() {
-      els.dailyDate.value = state.filters.date;
-      els.weeklyDate.value = state.filters.week;
-      els.monthlyDate.value = state.filters.month;
-      const type = els.taskType.value;
-      els.dailyDateWrap.style.display = type === 'daily' ? '' : 'none';
-      els.weeklyDateWrap.style.display = type === 'weekly' ? '' : 'none';
-      els.monthlyDateWrap.style.display = type === 'monthly' ? '' : 'none';
-      els.tabs.forEach(btn => btn.classList.toggle('active', btn.dataset.tab === state.view));
-      renderTagSelectBox();
-      renderTagManageList();
-    }
-
-    function renderTagSelectBox() {
+    function renderTagSelectBox(targetEl, checkedIds = []) {
       if (!state.tags.length) {
-        els.taskTagSelectBox.innerHTML = '<span class="small-note">등록된 태그가 없습니다.</span>';
+        targetEl.innerHTML = '<span class="small-note">등록된 태그가 없습니다.</span>';
         return;
       }
-      els.taskTagSelectBox.innerHTML = state.tags.map(tag => `
+
+      targetEl.innerHTML = state.tags.map(tag => `
         <label class="tag-check">
-          <input type="checkbox" name="taskTagIds" value="${tag.id}">
+          <input type="checkbox" value="${tag.id}" ${checkedIds.includes(tag.id) ? "checked" : ""}>
           <span>#${escapeHtml(tag.name)}</span>
         </label>
-      `).join('');
+      `).join("");
+    }
+
+    function getCheckedTagIdsFromBox(targetEl) {
+      return [...targetEl.querySelectorAll('input[type="checkbox"]:checked')].map(el => el.value);
     }
 
     function renderTagManageList() {
@@ -635,6 +849,7 @@
         els.tagManageList.innerHTML = '<div class="empty">등록된 태그가 없습니다.</div>';
         return;
       }
+
       els.tagManageList.innerHTML = state.tags.map(tag => `
         <div class="tag-manage-item">
           <div>#${escapeHtml(tag.name)}</div>
@@ -643,52 +858,94 @@
             <button class="icon-btn" type="button" onclick="deleteTag('${tag.id}')" title="삭제">🗑</button>
           </div>
         </div>
-      `).join('');
+      `).join("");
+    }
+
+    function getTaskTagBadges(task) {
+      return (task.tagIds || [])
+        .map(id => getTagName(id))
+        .filter(Boolean)
+        .map(name => `<span class="badge">#${escapeHtml(name)}</span>`)
+        .join("");
+    }
+
+    function syncForm() {
+      els.dailyDate.value = state.filters.date;
+      els.weeklyDate.value = state.filters.week;
+      els.monthlyDate.value = state.filters.month;
+
+      const type = els.taskType.value;
+      els.dailyDateWrap.style.display = type === "daily" ? "" : "none";
+      els.weeklyDateWrap.style.display = type === "weekly" ? "" : "none";
+      els.monthlyDateWrap.style.display = type === "monthly" ? "" : "none";
+
+      els.tabs.forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.tab === state.view);
+      });
+
+      renderTagSelectBox(els.taskTagSelectBox);
+      renderTagManageList();
+    }
+
+    function syncEditForm() {
+      const type = els.editTaskType.value;
+      els.editDailyDateWrap.style.display = type === "daily" ? "" : "none";
+      els.editWeeklyDateWrap.style.display = type === "weekly" ? "" : "none";
+      els.editMonthlyDateWrap.style.display = type === "monthly" ? "" : "none";
     }
 
     function addTag() {
       const name = els.newTagName.value.trim();
       if (!name) return;
+
       if (state.tags.some(tag => tag.name.toLowerCase() === name.toLowerCase())) {
-        alert('같은 이름의 태그가 이미 있습니다.');
+        alert("같은 이름의 태그가 이미 있습니다.");
         return;
       }
+
       state.tags.push({ id: uid(), name });
-      els.newTagName.value = '';
+      els.newTagName.value = "";
       saveData();
-      syncForm();
       render();
     }
 
     function editTag(tagId) {
       const tag = state.tags.find(t => t.id === tagId);
       if (!tag) return;
-      const nextName = prompt('태그 이름 수정', tag.name);
+
+      const nextName = prompt("태그 이름 수정", tag.name);
       if (nextName === null) return;
+
       const cleanName = nextName.trim();
       if (!cleanName) return;
+
       if (state.tags.some(t => t.id !== tagId && t.name.toLowerCase() === cleanName.toLowerCase())) {
-        alert('같은 이름의 태그가 이미 있습니다.');
+        alert("같은 이름의 태그가 이미 있습니다.");
         return;
       }
+
       tag.name = cleanName;
       saveData();
-      syncForm();
       render();
     }
 
     function deleteTag(tagId) {
       const tag = state.tags.find(t => t.id === tagId);
       if (!tag) return;
+
       if (!confirm(`#${tag.name} 태그를 삭제할까요?`)) return;
+
       state.tags = state.tags.filter(t => t.id !== tagId);
       state.tasks = state.tasks.map(task => ({
         ...task,
         tagIds: (task.tagIds || []).filter(id => id !== tagId)
       }));
-      if (state.search.tagId === tagId) state.search.tagId = 'all';
+
+      if (state.search.tagId === tagId) {
+        state.search.tagId = "all";
+      }
+
       saveData();
-      syncForm();
       render();
     }
 
@@ -696,7 +953,8 @@
       const type = els.taskType.value;
       const title = els.taskTitle.value.trim();
       const memo = els.taskMemo.value.trim();
-      const tagIds = getSelectedTagIds();
+      const tagIds = getCheckedTagIdsFromBox(els.taskTagSelectBox);
+
       if (!title) return;
 
       const task = {
@@ -709,21 +967,78 @@
         rolledOverCount: 0,
         createdAt: Date.now(),
         updatedAt: Date.now(),
-        dateKey: type === 'daily' ? state.filters.date : null,
-        weekKey: type === 'weekly' ? state.filters.week : null,
-        monthKey: type === 'monthly' ? state.filters.month : null
+        dateKey: type === "daily" ? state.filters.date : null,
+        weekKey: type === "weekly" ? state.filters.week : null,
+        monthKey: type === "monthly" ? state.filters.month : null
       };
 
       state.tasks.unshift(task);
-      els.taskTitle.value = '';
-      els.taskMemo.value = '';
-      document.querySelectorAll('input[name="taskTagIds"]').forEach(el => { el.checked = false; });
+      els.taskTitle.value = "";
+      els.taskMemo.value = "";
+      renderTagSelectBox(els.taskTagSelectBox, []);
       saveData();
       render();
     }
 
+    function openEditTask(id) {
+      const task = state.tasks.find(t => t.id === id);
+      if (!task) return;
+
+      editingTaskId = id;
+      els.editTaskType.value = task.type;
+      els.editTaskTitle.value = task.title || "";
+      els.editTaskMemo.value = task.memo || "";
+      els.editDailyDate.value = task.dateKey || state.filters.date;
+      els.editWeeklyDate.value = task.weekKey || state.filters.week;
+      els.editMonthlyDate.value = task.monthKey || state.filters.month;
+
+      renderTagSelectBox(els.editTaskTagSelectBox, task.tagIds || []);
+      syncEditForm();
+      els.editModalBackdrop.classList.add("show");
+    }
+
+    function closeEditTask() {
+      editingTaskId = null;
+      els.editModalBackdrop.classList.remove("show");
+    }
+
+    function saveEditedTask() {
+      if (!editingTaskId) return;
+
+      const type = els.editTaskType.value;
+      const title = els.editTaskTitle.value.trim();
+      const memo = els.editTaskMemo.value.trim();
+      const tagIds = getCheckedTagIdsFromBox(els.editTaskTagSelectBox);
+
+      if (!title) return;
+
+      state.tasks = state.tasks.map(task => {
+        if (task.id !== editingTaskId) return task;
+
+        return {
+          ...task,
+          type,
+          title,
+          memo,
+          tagIds,
+          dateKey: type === "daily" ? els.editDailyDate.value : null,
+          weekKey: type === "weekly" ? els.editWeeklyDate.value : null,
+          monthKey: type === "monthly" ? els.editMonthlyDate.value : null,
+          updatedAt: Date.now()
+        };
+      });
+
+      saveData();
+      closeEditTask();
+      render();
+    }
+
     function toggleTask(id) {
-      state.tasks = state.tasks.map(task => task.id === id ? { ...task, completed: !task.completed, updatedAt: Date.now() } : task);
+      state.tasks = state.tasks.map(task =>
+        task.id === id
+          ? { ...task, completed: !task.completed, updatedAt: Date.now() }
+          : task
+      );
       saveData();
       render();
     }
@@ -737,45 +1052,76 @@
     function carryTask(id) {
       state.tasks = state.tasks.map(task => {
         if (task.id !== id) return task;
-        if (task.type === 'daily') return { ...task, dateKey: nextDayKey(task.dateKey), rolledOverCount: (task.rolledOverCount || 0) + 1, updatedAt: Date.now() };
-        if (task.type === 'weekly') return { ...task, weekKey: nextWeekKey(task.weekKey), rolledOverCount: (task.rolledOverCount || 0) + 1, updatedAt: Date.now() };
-        return { ...task, monthKey: nextMonthKey(task.monthKey), rolledOverCount: (task.rolledOverCount || 0) + 1, updatedAt: Date.now() };
+
+        if (task.type === "daily") {
+          return {
+            ...task,
+            dateKey: nextDayKey(task.dateKey),
+            rolledOverCount: (task.rolledOverCount || 0) + 1,
+            updatedAt: Date.now()
+          };
+        }
+
+        if (task.type === "weekly") {
+          return {
+            ...task,
+            weekKey: nextWeekKey(task.weekKey),
+            rolledOverCount: (task.rolledOverCount || 0) + 1,
+            updatedAt: Date.now()
+          };
+        }
+
+        return {
+          ...task,
+          monthKey: nextMonthKey(task.monthKey),
+          rolledOverCount: (task.rolledOverCount || 0) + 1,
+          updatedAt: Date.now()
+        };
       });
+
       saveData();
       render();
     }
 
     function taskTypeLabel(type) {
-      if (type === 'daily') return '당일';
-      if (type === 'weekly') return '주간';
-      return '월간';
+      if (type === "daily") return "당일";
+      if (type === "weekly") return "주간";
+      return "월간";
+    }
+
+    function taskTypeBadgeClass(type) {
+      if (type === "daily") return "daily";
+      if (type === "weekly") return "weekly";
+      return "monthly";
     }
 
     function taskPeriod(task) {
-      if (task.type === 'daily') return `일정: ${task.dateKey}`;
-      if (task.type === 'weekly') return `주간: ${formatWeekLabel(task.weekKey)}`;
+      if (task.type === "daily") return `일정: ${task.dateKey}`;
+      if (task.type === "weekly") return `주간: ${formatWeekLabel(task.weekKey)}`;
       return `월간: ${task.monthKey}`;
     }
 
     function renderTaskItem(task, compact = false) {
       const tagBadges = getTaskTagBadges(task);
+
       return `
-        <div class="task-item ${task.completed ? 'completed' : ''}">
+        <div class="task-item ${task.completed ? "completed" : ""}">
           <div class="task-row">
-            <input type="checkbox" ${task.completed ? 'checked' : ''} onchange="toggleTask('${task.id}')" />
+            <input type="checkbox" ${task.completed ? "checked" : ""} onchange="toggleTask('${task.id}')" />
             <div class="task-main">
               <div class="task-title-row">
-                <div class="task-title ${task.completed ? 'done' : ''}">${escapeHtml(task.title)}</div>
+                <div class="task-title ${task.completed ? "done" : ""}">${escapeHtml(task.title)}</div>
                 <span class="badge dark">${taskTypeLabel(task.type)}</span>
-                ${task.rolledOverCount > 0 ? `<span class="badge">이월 ${task.rolledOverCount}회</span>` : ''}
+                ${task.rolledOverCount > 0 ? `<span class="badge">이월 ${task.rolledOverCount}회</span>` : ""}
               </div>
-              ${!compact && task.memo ? `<div class="task-memo">${escapeHtml(task.memo)}</div>` : ''}
+              ${!compact && task.memo ? `<div class="task-memo">${escapeHtml(task.memo)}</div>` : ""}
               <div class="task-meta">
                 <span>${escapeHtml(taskPeriod(task))}</span>
               </div>
-              ${tagBadges ? `<div class="task-tags">${tagBadges}</div>` : ''}
+              ${tagBadges ? `<div class="task-tags">${tagBadges}</div>` : ""}
             </div>
             <div class="task-actions">
+              <button class="icon-btn" onclick="openEditTask('${task.id}')" title="수정">✎</button>
               <button class="icon-btn" onclick="carryTask('${task.id}')" title="다음으로 이월">↷</button>
               <button class="icon-btn" onclick="deleteTask('${task.id}')" title="삭제">🗑</button>
             </div>
@@ -789,7 +1135,10 @@
     }
 
     function renderDaily() {
-      const tasks = state.tasks.filter(t => t.type === 'daily' && t.dateKey === state.filters.date).sort(sortTasks);
+      const tasks = state.tasks
+        .filter(t => t.type === "daily" && t.dateKey === state.filters.date)
+        .sort(sortTasks);
+
       return `
         <div class="card">
           <div class="card-body">
@@ -798,7 +1147,7 @@
               <input class="toolbar-control" type="date" value="${state.filters.date}" onchange="changeFilter('date', this.value)" />
             </div>
             <div class="task-list">
-              ${tasks.length ? tasks.map(task => renderTaskItem(task)).join('') : renderEmpty('해당 날짜의 할일이 없습니다.')}
+              ${tasks.length ? tasks.map(task => renderTaskItem(task)).join("") : renderEmpty("해당 날짜의 할일이 없습니다.")}
             </div>
           </div>
         </div>
@@ -806,9 +1155,12 @@
     }
 
     function renderWeekly() {
-      const weeklyTasks = state.tasks.filter(t => t.type === 'weekly' && t.weekKey === state.filters.week).sort(sortTasks);
+      const weeklyTasks = state.tasks
+        .filter(t => t.type === "weekly" && t.weekKey === state.filters.week)
+        .sort(sortTasks);
+
       const dailyChildren = state.tasks
-        .filter(t => t.type === 'daily' && inWeek(t.dateKey, state.filters.week))
+        .filter(t => t.type === "daily" && inWeek(t.dateKey, state.filters.week))
         .sort((a, b) => {
           if (a.completed !== b.completed) return a.completed ? 1 : -1;
           if (a.dateKey !== b.dateKey) return a.dateKey.localeCompare(b.dateKey);
@@ -825,17 +1177,18 @@
               </div>
               <div class="small-note">범위: ${formatWeekLabel(state.filters.week)}</div>
               <div class="task-list">
-                ${weeklyTasks.length ? weeklyTasks.map(task => renderTaskItem(task)).join('') : renderEmpty('해당 주의 주간업무가 없습니다.')}
+                ${weeklyTasks.length ? weeklyTasks.map(task => renderTaskItem(task)).join("") : renderEmpty("해당 주의 주간업무가 없습니다.")}
               </div>
             </div>
           </div>
+
           <div class="card">
             <div class="card-body">
               <div class="toolbar">
                 <h2 class="toolbar-title">이 주의 일일업무</h2>
               </div>
               <div class="task-list">
-                ${dailyChildren.length ? dailyChildren.map(task => renderTaskItem(task, true)).join('') : renderEmpty('이 주에 연결된 일일업무가 없습니다.')}
+                ${dailyChildren.length ? dailyChildren.map(task => renderTaskItem(task, true)).join("") : renderEmpty("이 주에 연결된 일일업무가 없습니다.")}
               </div>
             </div>
           </div>
@@ -844,16 +1197,20 @@
     }
 
     function renderMonthly() {
-      const monthlyTasks = state.tasks.filter(t => t.type === 'monthly' && t.monthKey === state.filters.month).sort(sortTasks);
+      const monthlyTasks = state.tasks
+        .filter(t => t.type === "monthly" && t.monthKey === state.filters.month)
+        .sort(sortTasks);
+
       const weeklyChildren = state.tasks
-        .filter(t => t.type === 'weekly' && sameMonth(t.weekKey, state.filters.month))
+        .filter(t => t.type === "weekly" && sameMonth(t.weekKey, state.filters.month))
         .sort((a, b) => {
           if (a.completed !== b.completed) return a.completed ? 1 : -1;
           if (a.weekKey !== b.weekKey) return a.weekKey.localeCompare(b.weekKey);
           return (b.updatedAt || 0) - (a.updatedAt || 0);
         });
+
       const dailyChildren = state.tasks
-        .filter(t => t.type === 'daily' && sameMonth(t.dateKey, state.filters.month))
+        .filter(t => t.type === "daily" && sameMonth(t.dateKey, state.filters.month))
         .sort((a, b) => {
           if (a.completed !== b.completed) return a.completed ? 1 : -1;
           if (a.dateKey !== b.dateKey) return a.dateKey.localeCompare(b.dateKey);
@@ -869,24 +1226,30 @@
                 <input class="toolbar-control" type="month" value="${state.filters.month}" onchange="changeFilter('month', this.value)" />
               </div>
               <div class="task-list">
-                ${monthlyTasks.length ? monthlyTasks.map(task => renderTaskItem(task)).join('') : renderEmpty('해당 월의 월간업무가 없습니다.')}
+                ${monthlyTasks.length ? monthlyTasks.map(task => renderTaskItem(task)).join("") : renderEmpty("해당 월의 월간업무가 없습니다.")}
               </div>
             </div>
           </div>
+
           <div class="grid-2-equal">
             <div class="card">
               <div class="card-body">
-                <div class="toolbar"><h2 class="toolbar-title">이 달의 주간업무</h2></div>
+                <div class="toolbar">
+                  <h2 class="toolbar-title">이 달의 주간업무</h2>
+                </div>
                 <div class="task-list">
-                  ${weeklyChildren.length ? weeklyChildren.map(task => renderTaskItem(task, true)).join('') : renderEmpty('이 달의 주간업무가 없습니다.')}
+                  ${weeklyChildren.length ? weeklyChildren.map(task => renderTaskItem(task, true)).join("") : renderEmpty("이 달의 주간업무가 없습니다.")}
                 </div>
               </div>
             </div>
+
             <div class="card">
               <div class="card-body">
-                <div class="toolbar"><h2 class="toolbar-title">이 달의 일일업무</h2></div>
+                <div class="toolbar">
+                  <h2 class="toolbar-title">이 달의 일일업무</h2>
+                </div>
                 <div class="task-list">
-                  ${dailyChildren.length ? dailyChildren.map(task => renderTaskItem(task, true)).join('') : renderEmpty('이 달의 일일업무가 없습니다.')}
+                  ${dailyChildren.length ? dailyChildren.map(task => renderTaskItem(task, true)).join("") : renderEmpty("이 달의 일일업무가 없습니다.")}
                 </div>
               </div>
             </div>
@@ -895,40 +1258,119 @@
       `;
     }
 
+    function getCalendarCells(monthStr) {
+      const [y, m] = monthStr.split("-").map(Number);
+      const first = new Date(y, m - 1, 1);
+      const firstDay = first.getDay();
+      const mondayIndex = firstDay === 0 ? 6 : firstDay - 1;
+      const start = addDays(first, -mondayIndex);
+
+      const cells = [];
+      for (let i = 0; i < 42; i++) {
+        cells.push(addDays(start, i));
+      }
+      return cells;
+    }
+
+    function getTasksForCalendarDay(dateStr, monthStr) {
+      const daily = state.tasks.filter(t => t.type === "daily" && t.dateKey === dateStr);
+      const weekly = state.tasks.filter(t => t.type === "weekly" && inWeek(dateStr, t.weekKey) && sameMonth(dateStr, monthStr));
+      const monthly = state.tasks.filter(t => t.type === "monthly" && t.monthKey === monthStr);
+
+      const monthlyShown = dateStr.endsWith("-01") ? monthly : [];
+      return [...daily, ...weekly, ...monthlyShown].sort(sortTasks);
+    }
+
+    function renderCalendar() {
+      const heads = ["월", "화", "수", "목", "금", "토", "일"];
+      const cells = getCalendarCells(state.filters.month);
+      const today = todayKey();
+
+      return `
+        <div class="card">
+          <div class="card-body">
+            <div class="toolbar">
+              <h2 class="toolbar-title">월 달력 보기</h2>
+              <input class="toolbar-control" type="month" value="${state.filters.month}" onchange="changeFilter('month', this.value)" />
+            </div>
+            <div class="calendar-wrap" style="margin-bottom:10px;">
+              ${heads.map(h => `<div class="calendar-head">${h}</div>`).join("")}
+              ${cells.map(date => {
+                const dateStr = todayKey(date);
+                const isCurrentMonth = sameMonth(dateStr, state.filters.month);
+                const items = getTasksForCalendarDay(dateStr, state.filters.month);
+
+                return `
+                  <div class="calendar-cell ${isCurrentMonth ? "" : "muted"} ${dateStr === today ? "today" : ""}">
+                    <div class="calendar-date">${Number(dateStr.slice(-2))}</div>
+                    <div class="calendar-items">
+                      ${items.slice(0, 6).map(task => `
+                        <div class="calendar-task ${task.type}" onclick="openEditTask('${task.id}')">
+                          ${escapeHtml(task.title)}
+                        </div>
+                      `).join("")}
+                      ${items.length > 6 ? `<div class="badge">+${items.length - 6}개 더</div>` : ""}
+                    </div>
+                  </div>
+                `;
+              }).join("")}
+            </div>
+            <div class="guide" style="margin-top:0;">
+              파랑: 일일업무 / 보라: 주간업무 / 노랑: 월간업무<br>
+              월간업무는 달력에서 1일 칸에 표시됩니다. 항목을 누르면 바로 수정할 수 있습니다.
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
     function getFilteredTasks() {
-      const text = (state.search.text || '').trim().toLowerCase();
+      const text = (state.search.text || "").trim().toLowerCase();
       const tagId = state.search.tagId;
+
       return state.tasks.filter(task => {
-        const textMatch = !text || [task.title, task.memo].join(' ').toLowerCase().includes(text);
-        const tagMatch = tagId === 'all' || (task.tagIds || []).includes(tagId);
+        const textMatch = !text || [task.title, task.memo].join(" ").toLowerCase().includes(text);
+        const tagMatch = tagId === "all" || (task.tagIds || []).includes(tagId);
         return textMatch && tagMatch;
       }).sort(sortTasks);
     }
 
     function renderSearch() {
       const filtered = getFilteredTasks();
+
       return `
         <div class="card">
           <div class="card-body">
             <div class="toolbar">
               <h2 class="toolbar-title">태그별 / 텍스트 검색</h2>
             </div>
+
             <div class="search-box">
               <div>
                 <label class="sub-label">텍스트 검색</label>
-                <input type="text" value="${escapeHtml(state.search.text)}" placeholder="제목 또는 메모 검색" oninput="changeSearchText(this.value)">
+                <input
+                  type="text"
+                  value="${escapeHtml(state.search.text)}"
+                  placeholder="제목 또는 메모 검색"
+                  oninput="changeSearchText(this.value)"
+                />
               </div>
+
               <div>
                 <label class="sub-label">태그별 검색</label>
                 <select onchange="changeSearchTag(this.value)">
-                  <option value="all" ${state.search.tagId === 'all' ? 'selected' : ''}>전체 태그</option>
-                  ${state.tags.map(tag => `<option value="${tag.id}" ${state.search.tagId === tag.id ? 'selected' : ''}>#${escapeHtml(tag.name)}</option>`).join('')}
+                  <option value="all" ${state.search.tagId === "all" ? "selected" : ""}>전체 태그</option>
+                  ${state.tags.map(tag => `
+                    <option value="${tag.id}" ${state.search.tagId === tag.id ? "selected" : ""}>#${escapeHtml(tag.name)}</option>
+                  `).join("")}
                 </select>
               </div>
             </div>
+
             <div class="search-result-count">검색 결과 ${filtered.length}개</div>
+
             <div class="task-list">
-              ${filtered.length ? filtered.map(task => renderTaskItem(task)).join('') : renderEmpty('검색 결과가 없습니다.')}
+              ${filtered.length ? filtered.map(task => renderTaskItem(task)).join("") : renderEmpty("검색 결과가 없습니다.")}
             </div>
           </div>
         </div>
@@ -937,10 +1379,18 @@
 
     function render() {
       syncForm();
-      if (state.view === 'daily') els.content.innerHTML = renderDaily();
-      else if (state.view === 'weekly') els.content.innerHTML = renderWeekly();
-      else if (state.view === 'monthly') els.content.innerHTML = renderMonthly();
-      else els.content.innerHTML = renderSearch();
+
+      if (state.view === "daily") {
+        els.content.innerHTML = renderDaily();
+      } else if (state.view === "weekly") {
+        els.content.innerHTML = renderWeekly();
+      } else if (state.view === "monthly") {
+        els.content.innerHTML = renderMonthly();
+      } else if (state.view === "calendar") {
+        els.content.innerHTML = renderCalendar();
+      } else {
+        els.content.innerHTML = renderSearch();
+      }
     }
 
     function changeFilter(type, value) {
@@ -961,34 +1411,34 @@
       render();
     }
 
-    function escapeHtml(str) {
-      return String(str)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#039;');
-    }
+    els.taskType.addEventListener("change", syncForm);
+    els.dailyDate.addEventListener("change", e => changeFilter("date", e.target.value));
+    els.weeklyDate.addEventListener("change", e => changeFilter("week", e.target.value));
+    els.monthlyDate.addEventListener("change", e => changeFilter("month", e.target.value));
+    els.addTaskBtn.addEventListener("click", addTask);
+    els.addTagBtn.addEventListener("click", addTag);
 
-    els.taskType.addEventListener('change', syncForm);
-    els.dailyDate.addEventListener('change', e => changeFilter('date', e.target.value));
-    els.weeklyDate.addEventListener('change', e => changeFilter('week', e.target.value));
-    els.monthlyDate.addEventListener('change', e => changeFilter('month', e.target.value));
-    els.addTaskBtn.addEventListener('click', addTask);
-    els.addTagBtn.addEventListener('click', addTag);
-    els.newTagName.addEventListener('keydown', e => {
-      if (e.key === 'Enter') addTag();
+    els.newTagName.addEventListener("keydown", e => {
+      if (e.key === "Enter") addTag();
     });
 
     els.tabs.forEach(btn => {
-      btn.addEventListener('click', () => {
+      btn.addEventListener("click", () => {
         state.view = btn.dataset.tab;
         saveData();
         render();
       });
     });
 
+    els.editTaskType.addEventListener("change", syncEditForm);
+    els.editCancelBtn.addEventListener("click", closeEditTask);
+    els.editSaveBtn.addEventListener("click", saveEditedTask);
+    els.editModalBackdrop.addEventListener("click", e => {
+      if (e.target === els.editModalBackdrop) closeEditTask();
+    });
+
     window.toggleTask = toggleTask;
+    window.openEditTask = openEditTask;
     window.deleteTask = deleteTask;
     window.carryTask = carryTask;
     window.changeFilter = changeFilter;

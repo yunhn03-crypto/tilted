@@ -13,13 +13,13 @@
       color: #1f2937;
     }
     .app {
-      max-width: 1440px;
+      max-width: 1480px;
       margin: 0 auto;
       padding: 16px;
     }
     .layout {
       display: grid;
-      grid-template-columns: 380px 1fr;
+      grid-template-columns: 400px 1fr;
       gap: 16px;
       align-items: start;
     }
@@ -99,6 +99,16 @@
       color: #fff;
       border-color: #111827;
     }
+    .btn-inline.warning {
+      background: #f59e0b;
+      color: #fff;
+      border-color: #f59e0b;
+    }
+    .btn-inline.danger {
+      background: #dc2626;
+      color: #fff;
+      border-color: #dc2626;
+    }
     .guide {
       margin-top: 12px;
       padding: 12px 14px;
@@ -108,6 +118,16 @@
       font-size: 13px;
       line-height: 1.5;
       color: #475569;
+    }
+    .status-box {
+      margin-top: 12px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid #dbeafe;
+      background: #eff6ff;
+      color: #1d4ed8;
+      font-size: 13px;
+      line-height: 1.5;
     }
     .tabs {
       display: grid;
@@ -197,21 +217,6 @@
       background: #eef2ff;
       border-color: #c7d2fe;
       color: #3730a3;
-    }
-    .badge.daily {
-      background: #eff6ff;
-      border-color: #bfdbfe;
-      color: #1d4ed8;
-    }
-    .badge.weekly {
-      background: #f5f3ff;
-      border-color: #ddd6fe;
-      color: #6d28d9;
-    }
-    .badge.monthly {
-      background: #fefce8;
-      border-color: #fde68a;
-      color: #a16207;
     }
     .task-memo {
       margin-top: 6px;
@@ -382,18 +387,9 @@
       word-break: break-word;
       cursor: pointer;
     }
-    .calendar-task.daily {
-      background: #eff6ff;
-      border-color: #bfdbfe;
-    }
-    .calendar-task.weekly {
-      background: #f5f3ff;
-      border-color: #ddd6fe;
-    }
-    .calendar-task.monthly {
-      background: #fefce8;
-      border-color: #fde68a;
-    }
+    .calendar-task.daily { background: #eff6ff; border-color: #bfdbfe; }
+    .calendar-task.weekly { background: #f5f3ff; border-color: #ddd6fe; }
+    .calendar-task.monthly { background: #fefce8; border-color: #fde68a; }
     .modal-backdrop {
       position: fixed;
       inset: 0;
@@ -407,7 +403,7 @@
     .modal-backdrop.show { display: flex; }
     .modal {
       width: 100%;
-      max-width: 560px;
+      max-width: 600px;
       background: #fff;
       border-radius: 20px;
       border: 1px solid #e5e7eb;
@@ -426,7 +422,6 @@
       gap: 10px;
       flex-wrap: wrap;
     }
-
     @media (max-width: 1100px) {
       .layout,
       .grid-2,
@@ -435,7 +430,6 @@
         grid-template-columns: 1fr;
       }
     }
-
     @media (max-width: 768px) {
       .app { padding: 12px; }
       .card-header { padding: 16px 16px 10px; }
@@ -455,12 +449,8 @@
       .calendar-wrap {
         grid-template-columns: 1fr;
       }
-      .calendar-head {
-        display: none;
-      }
-      .calendar-cell {
-        min-height: auto;
-      }
+      .calendar-head { display: none; }
+      .calendar-cell { min-height: auto; }
     }
   </style>
 </head>
@@ -480,43 +470,51 @@
               <option value="monthly">그달 할일</option>
             </select>
           </div>
-
           <div class="section" id="dailyDateWrap">
             <label class="label">날짜</label>
             <input type="date" id="dailyDate" />
           </div>
-
           <div class="section" id="weeklyDateWrap" style="display:none;">
             <label class="label">주 시작일(월요일)</label>
             <input type="date" id="weeklyDate" />
           </div>
-
           <div class="section" id="monthlyDateWrap" style="display:none;">
             <label class="label">월</label>
             <input type="month" id="monthlyDate" />
           </div>
-
           <div class="section">
             <label class="label">할일 제목</label>
             <input type="text" id="taskTitle" placeholder="예: 거래처 견적 발송" />
           </div>
-
           <div class="section">
             <label class="label">메모</label>
             <textarea id="taskMemo" placeholder="상세 내용, 체크 포인트"></textarea>
           </div>
-
           <div class="section">
             <label class="label">태그 선택</label>
             <div class="tag-select-box" id="taskTagSelectBox"></div>
           </div>
-
           <button class="btn" id="addTaskBtn" type="button">추가</button>
-
           <div class="guide">
             태그는 아래의 태그 관리에서 별도로 등록합니다.<br>
             일정 등록 시에는 등록된 태그를 선택해서 붙일 수 있습니다.<br>
             미완료 업무는 다음 날짜·주·월로 자동 이월되고, 이월 항목은 최상단에 먼저 표시됩니다.
+          </div>
+
+          <div class="section" style="margin-top:16px;">
+            <label class="label">실시간 공유 / 백업</label>
+            <div class="field-row" style="margin-bottom:8px;">
+              <button class="btn-inline primary" id="syncUploadBtn" type="button">클라우드 저장</button>
+              <button class="btn-inline" id="syncDownloadBtn" type="button">클라우드 불러오기</button>
+            </div>
+            <div class="field-row" style="margin-bottom:8px;">
+              <button class="btn-inline" id="backupExportBtn" type="button">백업 내보내기</button>
+              <button class="btn-inline warning" id="backupImportBtn" type="button">백업 불러오기</button>
+            </div>
+            <input type="file" id="backupFileInput" accept="application/json" style="display:none;">
+            <div class="status-box" id="syncStatusBox">
+              현재 저장 방식: 브라우저 로컬 저장 + Firebase 실시간 동기화 준비 상태
+            </div>
           </div>
 
           <div class="section" style="margin-top:16px;">
@@ -538,7 +536,6 @@
           <button class="tab-btn" data-tab="calendar">달력</button>
           <button class="tab-btn" data-tab="search">검색</button>
         </div>
-
         <div id="content"></div>
       </div>
     </div>
@@ -558,37 +555,30 @@
             <option value="monthly">그달 할일</option>
           </select>
         </div>
-
         <div class="section" id="editDailyDateWrap">
           <label class="label">날짜</label>
           <input type="date" id="editDailyDate" />
         </div>
-
         <div class="section" id="editWeeklyDateWrap" style="display:none;">
           <label class="label">주 시작일(월요일)</label>
           <input type="date" id="editWeeklyDate" />
         </div>
-
         <div class="section" id="editMonthlyDateWrap" style="display:none;">
           <label class="label">월</label>
           <input type="month" id="editMonthlyDate" />
         </div>
-
         <div class="section">
           <label class="label">할일 제목</label>
           <input type="text" id="editTaskTitle" />
         </div>
-
         <div class="section">
           <label class="label">메모</label>
           <textarea id="editTaskMemo"></textarea>
         </div>
-
         <div class="section">
           <label class="label">태그 선택</label>
           <div class="tag-select-box" id="editTaskTagSelectBox"></div>
         </div>
-
         <div class="btn-row">
           <button class="btn-inline" id="editCancelBtn" type="button">취소</button>
           <button class="btn-inline primary" id="editSaveBtn" type="button">저장</button>
@@ -597,8 +587,30 @@
     </div>
   </div>
 
-  <script>
-    const STORAGE_KEY = "todo-manager-final-v1";
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getDatabase, ref, set, get, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+    const STORAGE_KEY = "todo-manager-final-v2";
+
+    // Firebase 설정값으로 교체하세요.
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+      databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_PROJECT_ID.appspot.com",
+      messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+      appId: "YOUR_APP_ID"
+    };
+
+    // 같은 URL에서 모두 같은 데이터를 보게 할 고정 경로입니다.
+    const SHARED_DOC_PATH = "sharedBoards/tilted";
+
+    let firebaseReady = false;
+    let db = null;
+    let remoteUnsubscribeActive = false;
+    let isApplyingRemoteData = false;
 
     function uid() {
       return Date.now() + "-" + Math.random().toString(36).slice(2, 9);
@@ -672,7 +684,7 @@
         .replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
+        .replace(/\"/g, "&quot;")
         .replace(/'/g, "&#039;");
     }
 
@@ -696,33 +708,27 @@
       };
     }
 
+    function normalizeData(parsed) {
+      const base = createDefaultData();
+      const next = parsed && typeof parsed === "object" ? parsed : base;
+
+      if (!next.filters) next.filters = base.filters;
+      if (!next.search) next.search = base.search;
+      if (!Array.isArray(next.tags)) next.tags = [];
+      if (!Array.isArray(next.tasks)) next.tasks = [];
+
+      next.tasks = next.tasks.map(task => ({
+        ...task,
+        tagIds: Array.isArray(task.tagIds) ? task.tagIds : []
+      }));
+
+      return next;
+    }
+
     function loadData() {
       try {
         const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY));
-        if (!parsed) return createDefaultData();
-
-        if (!parsed.filters) {
-          parsed.filters = {
-            date: todayKey(),
-            week: weekKey(),
-            month: monthKey()
-          };
-        }
-        if (!parsed.search) {
-          parsed.search = {
-            text: "",
-            tagId: "all"
-          };
-        }
-        if (!Array.isArray(parsed.tags)) parsed.tags = [];
-        if (!Array.isArray(parsed.tasks)) parsed.tasks = [];
-
-        parsed.tasks = parsed.tasks.map(task => ({
-          ...task,
-          tagIds: Array.isArray(task.tagIds) ? task.tagIds : []
-        }));
-
-        return parsed;
+        return normalizeData(parsed);
       } catch {
         return createDefaultData();
       }
@@ -731,8 +737,23 @@
     let state = loadData();
     let editingTaskId = null;
 
-    function saveData() {
+    function saveLocal() {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    function updateStatus(message, isError = false) {
+      const box = document.getElementById("syncStatusBox");
+      if (!box) return;
+      box.textContent = message;
+      if (isError) {
+        box.style.background = "#fef2f2";
+        box.style.borderColor = "#fecaca";
+        box.style.color = "#b91c1c";
+      } else {
+        box.style.background = "#eff6ff";
+        box.style.borderColor = "#dbeafe";
+        box.style.color = "#1d4ed8";
+      }
     }
 
     function sortTasks(a, b) {
@@ -751,41 +772,22 @@
 
       state.tasks = state.tasks.map(task => {
         if (task.completed) return task;
-
         if (task.type === "daily" && task.dateKey < currentDate) {
           changed = true;
-          return {
-            ...task,
-            dateKey: currentDate,
-            rolledOverCount: (task.rolledOverCount || 0) + 1,
-            updatedAt: Date.now()
-          };
+          return { ...task, dateKey: currentDate, rolledOverCount: (task.rolledOverCount || 0) + 1, updatedAt: Date.now() };
         }
-
         if (task.type === "weekly" && task.weekKey < currentWeek) {
           changed = true;
-          return {
-            ...task,
-            weekKey: currentWeek,
-            rolledOverCount: (task.rolledOverCount || 0) + 1,
-            updatedAt: Date.now()
-          };
+          return { ...task, weekKey: currentWeek, rolledOverCount: (task.rolledOverCount || 0) + 1, updatedAt: Date.now() };
         }
-
         if (task.type === "monthly" && task.monthKey < currentMonth) {
           changed = true;
-          return {
-            ...task,
-            monthKey: currentMonth,
-            rolledOverCount: (task.rolledOverCount || 0) + 1,
-            updatedAt: Date.now()
-          };
+          return { ...task, monthKey: currentMonth, rolledOverCount: (task.rolledOverCount || 0) + 1, updatedAt: Date.now() };
         }
-
         return task;
       });
 
-      if (changed) saveData();
+      if (changed) persist();
     }
 
     const els = {
@@ -803,9 +805,13 @@
       addTagBtn: document.getElementById("addTagBtn"),
       tagManageList: document.getElementById("tagManageList"),
       addTaskBtn: document.getElementById("addTaskBtn"),
+      syncUploadBtn: document.getElementById("syncUploadBtn"),
+      syncDownloadBtn: document.getElementById("syncDownloadBtn"),
+      backupExportBtn: document.getElementById("backupExportBtn"),
+      backupImportBtn: document.getElementById("backupImportBtn"),
+      backupFileInput: document.getElementById("backupFileInput"),
       content: document.getElementById("content"),
       tabs: document.querySelectorAll(".tab-btn"),
-
       editModalBackdrop: document.getElementById("editModalBackdrop"),
       editTaskType: document.getElementById("editTaskType"),
       editDailyDateWrap: document.getElementById("editDailyDateWrap"),
@@ -831,7 +837,6 @@
         targetEl.innerHTML = '<span class="small-note">등록된 태그가 없습니다.</span>';
         return;
       }
-
       targetEl.innerHTML = state.tags.map(tag => `
         <label class="tag-check">
           <input type="checkbox" value="${tag.id}" ${checkedIds.includes(tag.id) ? "checked" : ""}>
@@ -849,7 +854,6 @@
         els.tagManageList.innerHTML = '<div class="empty">등록된 태그가 없습니다.</div>';
         return;
       }
-
       els.tagManageList.innerHTML = state.tags.map(tag => `
         <div class="tag-manage-item">
           <div>#${escapeHtml(tag.name)}</div>
@@ -862,27 +866,18 @@
     }
 
     function getTaskTagBadges(task) {
-      return (task.tagIds || [])
-        .map(id => getTagName(id))
-        .filter(Boolean)
-        .map(name => `<span class="badge">#${escapeHtml(name)}</span>`)
-        .join("");
+      return (task.tagIds || []).map(id => getTagName(id)).filter(Boolean).map(name => `<span class="badge">#${escapeHtml(name)}</span>`).join("");
     }
 
     function syncForm() {
       els.dailyDate.value = state.filters.date;
       els.weeklyDate.value = state.filters.week;
       els.monthlyDate.value = state.filters.month;
-
       const type = els.taskType.value;
       els.dailyDateWrap.style.display = type === "daily" ? "" : "none";
       els.weeklyDateWrap.style.display = type === "weekly" ? "" : "none";
       els.monthlyDateWrap.style.display = type === "monthly" ? "" : "none";
-
-      els.tabs.forEach(btn => {
-        btn.classList.toggle("active", btn.dataset.tab === state.view);
-      });
-
+      els.tabs.forEach(btn => btn.classList.toggle("active", btn.dataset.tab === state.view));
       renderTagSelectBox(els.taskTagSelectBox);
       renderTagManageList();
     }
@@ -894,59 +889,53 @@
       els.editMonthlyDateWrap.style.display = type === "monthly" ? "" : "none";
     }
 
+    async function persist(syncRemote = true) {
+      saveLocal();
+      render();
+      if (firebaseReady && syncRemote && !isApplyingRemoteData) {
+        try {
+          await uploadToCloud(false);
+        } catch (error) {
+          console.error(error);
+        }
+      }
+    }
+
     function addTag() {
       const name = els.newTagName.value.trim();
       if (!name) return;
-
       if (state.tags.some(tag => tag.name.toLowerCase() === name.toLowerCase())) {
         alert("같은 이름의 태그가 이미 있습니다.");
         return;
       }
-
       state.tags.push({ id: uid(), name });
       els.newTagName.value = "";
-      saveData();
-      render();
+      persist();
     }
 
     function editTag(tagId) {
       const tag = state.tags.find(t => t.id === tagId);
       if (!tag) return;
-
       const nextName = prompt("태그 이름 수정", tag.name);
       if (nextName === null) return;
-
       const cleanName = nextName.trim();
       if (!cleanName) return;
-
       if (state.tags.some(t => t.id !== tagId && t.name.toLowerCase() === cleanName.toLowerCase())) {
         alert("같은 이름의 태그가 이미 있습니다.");
         return;
       }
-
       tag.name = cleanName;
-      saveData();
-      render();
+      persist();
     }
 
     function deleteTag(tagId) {
       const tag = state.tags.find(t => t.id === tagId);
       if (!tag) return;
-
       if (!confirm(`#${tag.name} 태그를 삭제할까요?`)) return;
-
       state.tags = state.tags.filter(t => t.id !== tagId);
-      state.tasks = state.tasks.map(task => ({
-        ...task,
-        tagIds: (task.tagIds || []).filter(id => id !== tagId)
-      }));
-
-      if (state.search.tagId === tagId) {
-        state.search.tagId = "all";
-      }
-
-      saveData();
-      render();
+      state.tasks = state.tasks.map(task => ({ ...task, tagIds: (task.tagIds || []).filter(id => id !== tagId) }));
+      if (state.search.tagId === tagId) state.search.tagId = "all";
+      persist();
     }
 
     function addTask() {
@@ -954,9 +943,7 @@
       const title = els.taskTitle.value.trim();
       const memo = els.taskMemo.value.trim();
       const tagIds = getCheckedTagIdsFromBox(els.taskTagSelectBox);
-
       if (!title) return;
-
       const task = {
         id: uid(),
         type,
@@ -971,19 +958,16 @@
         weekKey: type === "weekly" ? state.filters.week : null,
         monthKey: type === "monthly" ? state.filters.month : null
       };
-
       state.tasks.unshift(task);
       els.taskTitle.value = "";
       els.taskMemo.value = "";
       renderTagSelectBox(els.taskTagSelectBox, []);
-      saveData();
-      render();
+      persist();
     }
 
     function openEditTask(id) {
       const task = state.tasks.find(t => t.id === id);
       if (!task) return;
-
       editingTaskId = id;
       els.editTaskType.value = task.type;
       els.editTaskTitle.value = task.title || "";
@@ -991,7 +975,6 @@
       els.editDailyDate.value = task.dateKey || state.filters.date;
       els.editWeeklyDate.value = task.weekKey || state.filters.week;
       els.editMonthlyDate.value = task.monthKey || state.filters.month;
-
       renderTagSelectBox(els.editTaskTagSelectBox, task.tagIds || []);
       syncEditForm();
       els.editModalBackdrop.classList.add("show");
@@ -1004,17 +987,13 @@
 
     function saveEditedTask() {
       if (!editingTaskId) return;
-
       const type = els.editTaskType.value;
       const title = els.editTaskTitle.value.trim();
       const memo = els.editTaskMemo.value.trim();
       const tagIds = getCheckedTagIdsFromBox(els.editTaskTagSelectBox);
-
       if (!title) return;
-
       state.tasks = state.tasks.map(task => {
         if (task.id !== editingTaskId) return task;
-
         return {
           ...task,
           type,
@@ -1027,72 +1006,34 @@
           updatedAt: Date.now()
         };
       });
-
-      saveData();
       closeEditTask();
-      render();
+      persist();
     }
 
     function toggleTask(id) {
-      state.tasks = state.tasks.map(task =>
-        task.id === id
-          ? { ...task, completed: !task.completed, updatedAt: Date.now() }
-          : task
-      );
-      saveData();
-      render();
+      state.tasks = state.tasks.map(task => task.id === id ? { ...task, completed: !task.completed, updatedAt: Date.now() } : task);
+      persist();
     }
 
     function deleteTask(id) {
       state.tasks = state.tasks.filter(task => task.id !== id);
-      saveData();
-      render();
+      persist();
     }
 
     function carryTask(id) {
       state.tasks = state.tasks.map(task => {
         if (task.id !== id) return task;
-
-        if (task.type === "daily") {
-          return {
-            ...task,
-            dateKey: nextDayKey(task.dateKey),
-            rolledOverCount: (task.rolledOverCount || 0) + 1,
-            updatedAt: Date.now()
-          };
-        }
-
-        if (task.type === "weekly") {
-          return {
-            ...task,
-            weekKey: nextWeekKey(task.weekKey),
-            rolledOverCount: (task.rolledOverCount || 0) + 1,
-            updatedAt: Date.now()
-          };
-        }
-
-        return {
-          ...task,
-          monthKey: nextMonthKey(task.monthKey),
-          rolledOverCount: (task.rolledOverCount || 0) + 1,
-          updatedAt: Date.now()
-        };
+        if (task.type === "daily") return { ...task, dateKey: nextDayKey(task.dateKey), rolledOverCount: (task.rolledOverCount || 0) + 1, updatedAt: Date.now() };
+        if (task.type === "weekly") return { ...task, weekKey: nextWeekKey(task.weekKey), rolledOverCount: (task.rolledOverCount || 0) + 1, updatedAt: Date.now() };
+        return { ...task, monthKey: nextMonthKey(task.monthKey), rolledOverCount: (task.rolledOverCount || 0) + 1, updatedAt: Date.now() };
       });
-
-      saveData();
-      render();
+      persist();
     }
 
     function taskTypeLabel(type) {
       if (type === "daily") return "당일";
       if (type === "weekly") return "주간";
       return "월간";
-    }
-
-    function taskTypeBadgeClass(type) {
-      if (type === "daily") return "daily";
-      if (type === "weekly") return "weekly";
-      return "monthly";
     }
 
     function taskPeriod(task) {
@@ -1103,7 +1044,6 @@
 
     function renderTaskItem(task, compact = false) {
       const tagBadges = getTaskTagBadges(task);
-
       return `
         <div class="task-item ${task.completed ? "completed" : ""}">
           <div class="task-row">
@@ -1135,10 +1075,7 @@
     }
 
     function renderDaily() {
-      const tasks = state.tasks
-        .filter(t => t.type === "daily" && t.dateKey === state.filters.date)
-        .sort(sortTasks);
-
+      const tasks = state.tasks.filter(t => t.type === "daily" && t.dateKey === state.filters.date).sort(sortTasks);
       return `
         <div class="card">
           <div class="card-body">
@@ -1155,18 +1092,12 @@
     }
 
     function renderWeekly() {
-      const weeklyTasks = state.tasks
-        .filter(t => t.type === "weekly" && t.weekKey === state.filters.week)
-        .sort(sortTasks);
-
-      const dailyChildren = state.tasks
-        .filter(t => t.type === "daily" && inWeek(t.dateKey, state.filters.week))
-        .sort((a, b) => {
-          if (a.completed !== b.completed) return a.completed ? 1 : -1;
-          if (a.dateKey !== b.dateKey) return a.dateKey.localeCompare(b.dateKey);
-          return (b.updatedAt || 0) - (a.updatedAt || 0);
-        });
-
+      const weeklyTasks = state.tasks.filter(t => t.type === "weekly" && t.weekKey === state.filters.week).sort(sortTasks);
+      const dailyChildren = state.tasks.filter(t => t.type === "daily" && inWeek(t.dateKey, state.filters.week)).sort((a, b) => {
+        if (a.completed !== b.completed) return a.completed ? 1 : -1;
+        if (a.dateKey !== b.dateKey) return a.dateKey.localeCompare(b.dateKey);
+        return (b.updatedAt || 0) - (a.updatedAt || 0);
+      });
       return `
         <div class="grid-2">
           <div class="card">
@@ -1181,12 +1112,9 @@
               </div>
             </div>
           </div>
-
           <div class="card">
             <div class="card-body">
-              <div class="toolbar">
-                <h2 class="toolbar-title">이 주의 일일업무</h2>
-              </div>
+              <div class="toolbar"><h2 class="toolbar-title">이 주의 일일업무</h2></div>
               <div class="task-list">
                 ${dailyChildren.length ? dailyChildren.map(task => renderTaskItem(task, true)).join("") : renderEmpty("이 주에 연결된 일일업무가 없습니다.")}
               </div>
@@ -1197,26 +1125,17 @@
     }
 
     function renderMonthly() {
-      const monthlyTasks = state.tasks
-        .filter(t => t.type === "monthly" && t.monthKey === state.filters.month)
-        .sort(sortTasks);
-
-      const weeklyChildren = state.tasks
-        .filter(t => t.type === "weekly" && sameMonth(t.weekKey, state.filters.month))
-        .sort((a, b) => {
-          if (a.completed !== b.completed) return a.completed ? 1 : -1;
-          if (a.weekKey !== b.weekKey) return a.weekKey.localeCompare(b.weekKey);
-          return (b.updatedAt || 0) - (a.updatedAt || 0);
-        });
-
-      const dailyChildren = state.tasks
-        .filter(t => t.type === "daily" && sameMonth(t.dateKey, state.filters.month))
-        .sort((a, b) => {
-          if (a.completed !== b.completed) return a.completed ? 1 : -1;
-          if (a.dateKey !== b.dateKey) return a.dateKey.localeCompare(b.dateKey);
-          return (b.updatedAt || 0) - (a.updatedAt || 0);
-        });
-
+      const monthlyTasks = state.tasks.filter(t => t.type === "monthly" && t.monthKey === state.filters.month).sort(sortTasks);
+      const weeklyChildren = state.tasks.filter(t => t.type === "weekly" && sameMonth(t.weekKey, state.filters.month)).sort((a, b) => {
+        if (a.completed !== b.completed) return a.completed ? 1 : -1;
+        if (a.weekKey !== b.weekKey) return a.weekKey.localeCompare(b.weekKey);
+        return (b.updatedAt || 0) - (a.updatedAt || 0);
+      });
+      const dailyChildren = state.tasks.filter(t => t.type === "daily" && sameMonth(t.dateKey, state.filters.month)).sort((a, b) => {
+        if (a.completed !== b.completed) return a.completed ? 1 : -1;
+        if (a.dateKey !== b.dateKey) return a.dateKey.localeCompare(b.dateKey);
+        return (b.updatedAt || 0) - (a.updatedAt || 0);
+      });
       return `
         <div>
           <div class="card" style="margin-bottom:16px;">
@@ -1230,24 +1149,18 @@
               </div>
             </div>
           </div>
-
           <div class="grid-2-equal">
             <div class="card">
               <div class="card-body">
-                <div class="toolbar">
-                  <h2 class="toolbar-title">이 달의 주간업무</h2>
-                </div>
+                <div class="toolbar"><h2 class="toolbar-title">이 달의 주간업무</h2></div>
                 <div class="task-list">
                   ${weeklyChildren.length ? weeklyChildren.map(task => renderTaskItem(task, true)).join("") : renderEmpty("이 달의 주간업무가 없습니다.")}
                 </div>
               </div>
             </div>
-
             <div class="card">
               <div class="card-body">
-                <div class="toolbar">
-                  <h2 class="toolbar-title">이 달의 일일업무</h2>
-                </div>
+                <div class="toolbar"><h2 class="toolbar-title">이 달의 일일업무</h2></div>
                 <div class="task-list">
                   ${dailyChildren.length ? dailyChildren.map(task => renderTaskItem(task, true)).join("") : renderEmpty("이 달의 일일업무가 없습니다.")}
                 </div>
@@ -1264,11 +1177,8 @@
       const firstDay = first.getDay();
       const mondayIndex = firstDay === 0 ? 6 : firstDay - 1;
       const start = addDays(first, -mondayIndex);
-
       const cells = [];
-      for (let i = 0; i < 42; i++) {
-        cells.push(addDays(start, i));
-      }
+      for (let i = 0; i < 42; i++) cells.push(addDays(start, i));
       return cells;
     }
 
@@ -1276,7 +1186,6 @@
       const daily = state.tasks.filter(t => t.type === "daily" && t.dateKey === dateStr);
       const weekly = state.tasks.filter(t => t.type === "weekly" && inWeek(dateStr, t.weekKey) && sameMonth(dateStr, monthStr));
       const monthly = state.tasks.filter(t => t.type === "monthly" && t.monthKey === monthStr);
-
       const monthlyShown = dateStr.endsWith("-01") ? monthly : [];
       return [...daily, ...weekly, ...monthlyShown].sort(sortTasks);
     }
@@ -1285,7 +1194,6 @@
       const heads = ["월", "화", "수", "목", "금", "토", "일"];
       const cells = getCalendarCells(state.filters.month);
       const today = todayKey();
-
       return `
         <div class="card">
           <div class="card-body">
@@ -1299,16 +1207,11 @@
                 const dateStr = todayKey(date);
                 const isCurrentMonth = sameMonth(dateStr, state.filters.month);
                 const items = getTasksForCalendarDay(dateStr, state.filters.month);
-
                 return `
                   <div class="calendar-cell ${isCurrentMonth ? "" : "muted"} ${dateStr === today ? "today" : ""}">
                     <div class="calendar-date">${Number(dateStr.slice(-2))}</div>
                     <div class="calendar-items">
-                      ${items.slice(0, 6).map(task => `
-                        <div class="calendar-task ${task.type}" onclick="openEditTask('${task.id}')">
-                          ${escapeHtml(task.title)}
-                        </div>
-                      `).join("")}
+                      ${items.slice(0, 6).map(task => `<div class="calendar-task ${task.type}" onclick="openEditTask('${task.id}')">${escapeHtml(task.title)}</div>`).join("")}
                       ${items.length > 6 ? `<div class="badge">+${items.length - 6}개 더</div>` : ""}
                     </div>
                   </div>
@@ -1327,7 +1230,6 @@
     function getFilteredTasks() {
       const text = (state.search.text || "").trim().toLowerCase();
       const tagId = state.search.tagId;
-
       return state.tasks.filter(task => {
         const textMatch = !text || [task.title, task.memo].join(" ").toLowerCase().includes(text);
         const tagMatch = tagId === "all" || (task.tagIds || []).includes(tagId);
@@ -1337,38 +1239,24 @@
 
     function renderSearch() {
       const filtered = getFilteredTasks();
-
       return `
         <div class="card">
           <div class="card-body">
-            <div class="toolbar">
-              <h2 class="toolbar-title">태그별 / 텍스트 검색</h2>
-            </div>
-
+            <div class="toolbar"><h2 class="toolbar-title">태그별 / 텍스트 검색</h2></div>
             <div class="search-box">
               <div>
                 <label class="sub-label">텍스트 검색</label>
-                <input
-                  type="text"
-                  value="${escapeHtml(state.search.text)}"
-                  placeholder="제목 또는 메모 검색"
-                  oninput="changeSearchText(this.value)"
-                />
+                <input type="text" value="${escapeHtml(state.search.text)}" placeholder="제목 또는 메모 검색" oninput="changeSearchText(this.value)" />
               </div>
-
               <div>
                 <label class="sub-label">태그별 검색</label>
                 <select onchange="changeSearchTag(this.value)">
                   <option value="all" ${state.search.tagId === "all" ? "selected" : ""}>전체 태그</option>
-                  ${state.tags.map(tag => `
-                    <option value="${tag.id}" ${state.search.tagId === tag.id ? "selected" : ""}>#${escapeHtml(tag.name)}</option>
-                  `).join("")}
+                  ${state.tags.map(tag => `<option value="${tag.id}" ${state.search.tagId === tag.id ? "selected" : ""}>#${escapeHtml(tag.name)}</option>`).join("")}
                 </select>
               </div>
             </div>
-
             <div class="search-result-count">검색 결과 ${filtered.length}개</div>
-
             <div class="task-list">
               ${filtered.length ? filtered.map(task => renderTaskItem(task)).join("") : renderEmpty("검색 결과가 없습니다.")}
             </div>
@@ -1379,36 +1267,116 @@
 
     function render() {
       syncForm();
-
-      if (state.view === "daily") {
-        els.content.innerHTML = renderDaily();
-      } else if (state.view === "weekly") {
-        els.content.innerHTML = renderWeekly();
-      } else if (state.view === "monthly") {
-        els.content.innerHTML = renderMonthly();
-      } else if (state.view === "calendar") {
-        els.content.innerHTML = renderCalendar();
-      } else {
-        els.content.innerHTML = renderSearch();
-      }
+      if (state.view === "daily") els.content.innerHTML = renderDaily();
+      else if (state.view === "weekly") els.content.innerHTML = renderWeekly();
+      else if (state.view === "monthly") els.content.innerHTML = renderMonthly();
+      else if (state.view === "calendar") els.content.innerHTML = renderCalendar();
+      else els.content.innerHTML = renderSearch();
     }
 
     function changeFilter(type, value) {
       state.filters[type] = value;
-      saveData();
-      render();
+      persist();
     }
 
     function changeSearchText(value) {
       state.search.text = value;
-      saveData();
+      saveLocal();
       render();
     }
 
     function changeSearchTag(value) {
       state.search.tagId = value;
-      saveData();
+      saveLocal();
       render();
+    }
+
+    async function initFirebase() {
+      try {
+        if (!firebaseConfig.apiKey || firebaseConfig.apiKey === "YOUR_API_KEY") {
+          updateStatus("Firebase 설정값이 아직 비어 있습니다. 설정값을 넣으면 이 링크에서 모두 실시간으로 같은 내용을 볼 수 있습니다.", true);
+          return;
+        }
+        const app = initializeApp(firebaseConfig);
+        db = getDatabase(app);
+        firebaseReady = true;
+        startRealtimeListener();
+        updateStatus("Firebase 연결 완료. 이제 클라우드 저장과 실시간 공유를 사용할 수 있습니다.");
+      } catch (error) {
+        console.error(error);
+        updateStatus("Firebase 초기화 실패. 설정값이나 databaseURL을 확인하세요.", true);
+      }
+    }
+
+    function startRealtimeListener() {
+      if (!firebaseReady || remoteUnsubscribeActive) return;
+      remoteUnsubscribeActive = true;
+      onValue(ref(db, SHARED_DOC_PATH), snapshot => {
+        const remote = snapshot.val();
+        if (!remote) return;
+        isApplyingRemoteData = true;
+        state = normalizeData(remote);
+        saveLocal();
+        render();
+        isApplyingRemoteData = false;
+        updateStatus("실시간 동기화 반영 완료. 다른 사용자의 변경 내용도 현재 화면에 표시됩니다.");
+      }, error => {
+        console.error(error);
+        updateStatus("실시간 수신 실패. Firebase 규칙과 설정을 확인하세요.", true);
+      });
+    }
+
+    async function uploadToCloud(showMessage = true) {
+      if (!firebaseReady) {
+        updateStatus("Firebase가 준비되지 않았습니다. 설정값을 먼저 넣어야 합니다.", true);
+        return;
+      }
+      await set(ref(db, SHARED_DOC_PATH), state);
+      if (showMessage) updateStatus("클라우드 저장 완료. 이 링크에 접속한 다른 사용자도 같은 내용을 바로 볼 수 있습니다.");
+    }
+
+    async function downloadFromCloud() {
+      if (!firebaseReady) {
+        updateStatus("Firebase가 준비되지 않았습니다. 설정값을 먼저 넣어야 합니다.", true);
+        return;
+      }
+      const snapshot = await get(ref(db, SHARED_DOC_PATH));
+      if (!snapshot.exists()) {
+        updateStatus("클라우드에 저장된 데이터가 아직 없습니다.", true);
+        return;
+      }
+      state = normalizeData(snapshot.val());
+      saveLocal();
+      render();
+      updateStatus("클라우드 불러오기 완료.");
+    }
+
+    function exportBackup() {
+      const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `todo-backup-${todayKey()}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      updateStatus("백업 파일 내보내기 완료.");
+    }
+
+    function importBackup(file) {
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const parsed = JSON.parse(reader.result);
+          state = normalizeData(parsed);
+          persist();
+          updateStatus("백업 불러오기 완료.");
+        } catch (error) {
+          console.error(error);
+          updateStatus("백업 파일 형식이 올바르지 않습니다.", true);
+        }
+      };
+      reader.readAsText(file, "utf-8");
     }
 
     els.taskType.addEventListener("change", syncForm);
@@ -1417,6 +1385,11 @@
     els.monthlyDate.addEventListener("change", e => changeFilter("month", e.target.value));
     els.addTaskBtn.addEventListener("click", addTask);
     els.addTagBtn.addEventListener("click", addTag);
+    els.syncUploadBtn.addEventListener("click", () => uploadToCloud(true));
+    els.syncDownloadBtn.addEventListener("click", downloadFromCloud);
+    els.backupExportBtn.addEventListener("click", exportBackup);
+    els.backupImportBtn.addEventListener("click", () => els.backupFileInput.click());
+    els.backupFileInput.addEventListener("change", e => importBackup(e.target.files[0]));
 
     els.newTagName.addEventListener("keydown", e => {
       if (e.key === "Enter") addTag();
@@ -1425,7 +1398,7 @@
     els.tabs.forEach(btn => {
       btn.addEventListener("click", () => {
         state.view = btn.dataset.tab;
-        saveData();
+        saveLocal();
         render();
       });
     });
@@ -1450,6 +1423,7 @@
     autoRollover();
     syncForm();
     render();
+    initFirebase();
   </script>
 </body>
 </html>
